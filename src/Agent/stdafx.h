@@ -1,33 +1,21 @@
 #pragma once
 
-#include <stdio.h>
-#include <Windows.h>
-#include <tchar.h>
+#include <cstdio>
 #include <cppcore.h>
+#include <protocol.h>
 
-class CTestConnection : public core::CSyncConnection
+struct ST_NETWORK_INFO : public core::IFormatterObject
 {
-    core::CSyncTCPSocket m_Socket;
-public:
-    CTestConnection(void)
-        : core::CSyncConnection(&m_Socket)
-    {}
+    std::tstring strIP;
+    std::tstring strMac;
+    WORD wPort;
 
-    void	OnConnect(void)
+    void OnSync(core::IFormatter& formatter)
     {
-        printf("connection established.\n");
-    }
-    void	OnClose(void)
-    {
-        printf("connection disconnected.\n");
-    }
-    void	OnRecv(void)
-    {
-        char szBuffer[100];
-
-        size_t tRead = 0;
-        m_Socket.Recv(szBuffer, 100, 5000, &tRead);
-        szBuffer[tRead] = 0;
-        printf("data recved [%s]\n", szBuffer);
+        formatter
+            + core::sPair(TEXT("IP"), strIP)
+            + core::sPair(TEXT("Mac"), strMac)
+            + core::sPair(TEXT("Port"), wPort)
+            ;
     }
 };
