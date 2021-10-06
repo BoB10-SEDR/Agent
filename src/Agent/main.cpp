@@ -1,21 +1,14 @@
 ﻿#include "stdafx.h"
 
-int _tmain(int nArgc, LPTSTR pszArgv[])
+int main()
 {
-    core::CSyncTCPSocket client;
-    client.Connect("127.0.0.1", 15000, 5000);
-
-    char szMsg[] = "Hello!!";
-    client.Send(szMsg, sizeof(szMsg), 5000, NULL);
-    Sleep(1000);
-    client.Send(szMsg, sizeof(szMsg), 5000, NULL);
-
-    Sleep(1000);
-    client.Send(szMsg, sizeof(szMsg), 5000, NULL);
-
-    Sleep(1000);
-    client.Send(szMsg, sizeof(szMsg), 5000, NULL);
-    
-    client.Close();
+    ST_NETWORK_INFO stNetworkInfo;
+    stNetworkInfo.strIP = TEXT("1.2.3.4");
+    stNetworkInfo.strMac = TEXT("00:01:02:03:04:05");
+    stNetworkInfo.wPort = 1234;
+    test();
+    std::tstring strContext;
+    core::WriteJsonToString(&stNetworkInfo, strContext);
+    tprintf("%s", strContext.c_str());
     return 0;
 }
