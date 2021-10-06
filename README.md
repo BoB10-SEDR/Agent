@@ -3,10 +3,24 @@
 ## Agent 
 - 언어 : Cpp
 
-## Project Setting
-### cppcore 설치 및 빌드
-- [cppcore](https://github.com/profrog-jeon/cppcore.git)
+### Project Setting
+- libprotocol.a 및 protocol.h 정보 갱신
+    ```
+    $ cd Agent/Inc
+    protocol.h 파일과 protocol 디렉토리에 protocol header 파일 및 정보를 갱신한다.
 
-### cppcore.h 와 cppcore.lib 연결
+    $ cd Agent/Lib
+    libprotocol.a의 최신 라이브러리를 갱신한다.
+    ```
+- 빌드
+    ```
+    $ cd Agent
+    $ cmake Src
+    $ cmake --build .
+    ```
+- 실행
+    ```
+    $ cd Agent/Build/LinuxRelease
+    $ ./agent
+    ```
 
-### 서버 실행 후 에이전트 실행
