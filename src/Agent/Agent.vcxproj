@@ -79,48 +79,56 @@
     <IntDir>$(SolutionDir)..\Output\$(configuration)$(platform)\$(projectName)</IntDir>
     <RemoteIntRelDir>$(RemoteProjectRelDir)/Output/$(configuration)$(platform)/$(projectName)</RemoteIntRelDir>
     <RemoteOutRelDir>$(RemoteProjectRelDir)/Build/$(configuration)$(platform)</RemoteOutRelDir>
+    <TargetName>agent</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
     <OutDir>$(SolutionDir)..\Build\$(configuration)$(platform)</OutDir>
     <IntDir>$(SolutionDir)..\Output\$(configuration)$(platform)\$(projectName)</IntDir>
     <RemoteIntRelDir>$(RemoteProjectRelDir)/Output/$(configuration)$(platform)/$(projectName)</RemoteIntRelDir>
     <RemoteOutRelDir>$(RemoteProjectRelDir)/Build/$(configuration)$(platform)</RemoteOutRelDir>
+    <TargetName>agent</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
     <OutDir>$(SolutionDir)..\Build\$(configuration)$(platform)</OutDir>
     <IntDir>$(SolutionDir)..\Output\$(configuration)$(platform)\$(projectName)</IntDir>
     <RemoteIntRelDir>$(RemoteProjectRelDir)/Output/$(configuration)$(platform)/$(projectName)</RemoteIntRelDir>
     <RemoteOutRelDir>$(RemoteProjectRelDir)/Build/$(configuration)$(platform)</RemoteOutRelDir>
+    <TargetName>agent</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
     <OutDir>$(SolutionDir)..\Build\$(configuration)$(platform)</OutDir>
     <IntDir>$(SolutionDir)..\Output\$(configuration)$(platform)\$(projectName)</IntDir>
     <RemoteIntRelDir>$(RemoteProjectRelDir)/Output/$(configuration)$(platform)/$(projectName)</RemoteIntRelDir>
     <RemoteOutRelDir>$(RemoteProjectRelDir)/Build/$(configuration)$(platform)</RemoteOutRelDir>
+    <TargetName>agent</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)..\Build\$(configuration)$(platform)</OutDir>
     <IntDir>$(SolutionDir)..\Output\$(configuration)$(platform)\$(projectName)</IntDir>
     <RemoteIntRelDir>$(RemoteProjectRelDir)/Output/$(configuration)$(platform)/$(projectName)</RemoteIntRelDir>
     <RemoteOutRelDir>$(RemoteProjectRelDir)/Build/$(configuration)$(platform)</RemoteOutRelDir>
+    <TargetName>agent</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)..\Build\$(configuration)$(platform)</OutDir>
     <IntDir>$(SolutionDir)..\Output\$(configuration)$(platform)\$(projectName)</IntDir>
     <RemoteIntRelDir>$(RemoteProjectRelDir)/Output/$(configuration)$(platform)/$(projectName)</RemoteIntRelDir>
     <RemoteOutRelDir>$(RemoteProjectRelDir)/Build/$(configuration)$(platform)</RemoteOutRelDir>
+    <TargetName>agent</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
     <OutDir>$(SolutionDir)..\Build\$(configuration)$(platform)</OutDir>
     <IntDir>$(SolutionDir)..\Output\$(configuration)$(platform)\$(projectName)</IntDir>
     <RemoteIntRelDir>$(RemoteProjectRelDir)/Output/$(configuration)$(platform)/$(projectName)</RemoteIntRelDir>
     <RemoteOutRelDir>$(RemoteProjectRelDir)/Build/$(configuration)$(platform)</RemoteOutRelDir>
+    <TargetName>agent</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
     <OutDir>$(SolutionDir)..\Build\$(configuration)$(platform)</OutDir>
     <IntDir>$(SolutionDir)..\Output\$(configuration)$(platform)\$(projectName)</IntDir>
     <RemoteIntRelDir>$(RemoteProjectRelDir)/Output/$(configuration)$(platform)/$(projectName)</RemoteIntRelDir>
     <RemoteOutRelDir>$(RemoteProjectRelDir)/Build/$(configuration)$(platform)</RemoteOutRelDir>
+    <TargetName>agent</TargetName>
   </PropertyGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
