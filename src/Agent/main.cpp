@@ -1,7 +1,6 @@
 ﻿#include "stdafx.h"
 #include "CTcpClient.h"
 #include <thread>
-#include "communicate.h"
 
 void SendTest(CTcpClient* client) {
 	while (true)
@@ -20,14 +19,21 @@ int main(int argc, char* argv[])
 	CTcpClient client;
 	std::vector<std::thread> works;
 
-	client.Connect("127.0.0.1", "12345");
+	try
+	{
+		client.Connect("127.0.0.1", "12345");
 
-	works.push_back(std::thread(&CTcpClient::Recv, &client));
-	works.push_back(std::thread(&SendTest, &client));
+		works.push_back(std::thread(&CTcpClient::Recv, &client));
+		works.push_back(std::thread(&SendTest, &client));
 
-	works[0].join();
-	works[1].join();
+		works[0].join();
+		works[1].join();
 
-	client.Disconnet();
+		client.Disconnet();
+	}
+	catch (std::exception& e)
+	{
+		printf("%s\n", e.what());
+	}
 	return 0;
 }

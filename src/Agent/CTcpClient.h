@@ -3,9 +3,9 @@
 #include <string>
 #include <string.h>
 #include <unistd.h>
-#include <fcntl.h> 
 #include <arpa/inet.h>
 #include <sys/socket.h>
+#include "TcpClientException.h"
 
 #define BUFFER_SIZE 1024
 

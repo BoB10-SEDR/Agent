@@ -21,18 +21,14 @@ int CTcpClient::Connect(std::string ip, std::string port)
 
 	clientSocket = socket(PF_INET, SOCK_STREAM, 0);
 
-	//int flags = fcntl(clientSocket, F_GETFL);
-	//flags |= O_NONBLOCK;
+	if (clientSocket < 0)
+		throw CTcpClientException("Socket Create Fail");
 
-	//if (fcntl(clientSocket, F_SETFL, flags) < 0)
-	//	printf("error\n");
+	if (connect(clientSocket, (struct sockaddr*)&serverAddress, sizeof(serverAddress)) == -1)
+		throw CTcpClientException("connect Fail");
 
-	if (connect(clientSocket, (struct sockaddr*)&serverAddress, sizeof(serverAddress)) == -1) {
-		printf("connect() error!");
-		return -1;
-	}
 	else {
-		puts("Connected...........");
+		printf("Connected...........");
 		return 0;
 	}
 }
