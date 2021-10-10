@@ -1,5 +1,4 @@
 #include "CTcpClient.h"
-#include <iostream>
 
 CTcpClient::CTcpClient()
 {
@@ -28,7 +27,7 @@ int CTcpClient::Connect(std::string ip, std::string port)
 		throw CTcpClientException("connect Fail");
 
 	else {
-		printf("Connected...........");
+		printf("Connected...........\n");
 		return 0;
 	}
 }
@@ -55,7 +54,23 @@ int CTcpClient::Recv()
 			break;
 		}
 		message[messageLength] = 0;
-		printf("Message from server: %s\n", message);
+
+		struct ST_PACKET_INFO stPacketRead;
+		core::ReadJsonFromString(&stPacketRead, message);
+		if (stPacketRead.destination == AGENT && stPacketRead.type == REQUEST)
+		{
+			tprintf(TEXT("RESQUEST OPCODE : %d\n"), stPacketRead.opcode);
+			tprintf(TEXT("RESQUEST DATA : %s\n"), stPacketRead.data.c_str());
+		}
+		else if (stPacketRead.destination == AGENT && stPacketRead.type == RESPONSE)
+		{
+			tprintf(TEXT("RESPONSE OPCODE : %d\n"), stPacketRead.opcode);
+			tprintf(TEXT("RESPONSE DATA : %s\n"), stPacketRead.data.c_str());
+		}
+		else
+		{
+			tprintf(TEXT("The message format is incorrect.The message format is incorrect. : %s\n"), message);
+		}
 	}
 }
 

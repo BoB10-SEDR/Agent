@@ -5,12 +5,22 @@
 void SendTest(CTcpClient* client) {
 	while (true)
 	{
-		char message[1024];
+		char message[BUFFER_SIZE];
 
 		printf("Message : ");
-		scanf("%s", message);
+		fgets(message, BUFFER_SIZE, stdin);
 
-		client->Send(message);
+		ST_PACKET_INFO stPacketSend;
+		stPacketSend.source = AGENT;
+		stPacketSend.destination = SERVER;
+		stPacketSend.type = REQUEST;
+		stPacketSend.opcode = OPCODE1;
+		stPacketSend.data = message;
+
+		std::tstring jsPacketSend;
+		core::WriteJsonToString(&stPacketSend, jsPacketSend);
+
+		client->Send(jsPacketSend);
 	}
 }
 
