@@ -131,9 +131,12 @@
     <TargetName>agent</TargetName>
   </PropertyGroup>
   <ItemGroup>
+    <ClCompile Include="baseCode.cpp" />
+    <ClCompile Include="Device.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Device.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
