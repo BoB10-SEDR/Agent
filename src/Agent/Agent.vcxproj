@@ -144,7 +144,7 @@
       <AdditionalIncludeDirectories>%(ClCompile.AdditionalIncludeDirectories);$(SolutionDir)../Inc;$(RemoteRootDir)/../BoB10_SEDR/$(ProjectName)/Inc</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <LibraryDependencies>cppcore;protocol;dl;pthread</LibraryDependencies>
+      <LibraryDependencies>cppcore;protocol;dl;pthread;pcap</LibraryDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
@@ -152,7 +152,7 @@
       <AdditionalIncludeDirectories>%(ClCompile.AdditionalIncludeDirectories);$(SolutionDir)../Inc;$(RemoteRootDir)/../BoB10_SEDR/$(ProjectName)/Inc</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <LibraryDependencies>cppcore;protocol;dl;pthread</LibraryDependencies>
+      <LibraryDependencies>cppcore;protocol;dl;pthread;pcap</LibraryDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
@@ -160,7 +160,7 @@
       <AdditionalIncludeDirectories>%(ClCompile.AdditionalIncludeDirectories);$(SolutionDir)../Inc;$(RemoteRootDir)/../BoB10_SEDR/$(ProjectName)/Inc</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <LibraryDependencies>cppcore;protocol;dl;pthread</LibraryDependencies>
+      <LibraryDependencies>cppcore;protocol;dl;pthread;pcap</LibraryDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
@@ -168,7 +168,7 @@
       <AdditionalIncludeDirectories>%(ClCompile.AdditionalIncludeDirectories);$(SolutionDir)../Inc;$(RemoteRootDir)/../BoB10_SEDR/$(ProjectName)/Inc</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <LibraryDependencies>cppcore;protocol;dl;pthread</LibraryDependencies>
+      <LibraryDependencies>cppcore;protocol;dl;pthread;pcap</LibraryDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -176,7 +176,7 @@
       <AdditionalIncludeDirectories>%(ClCompile.AdditionalIncludeDirectories);$(SolutionDir)../Inc;$(RemoteRootDir)/../BoB10_SEDR/$(ProjectName)/Inc</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <LibraryDependencies>cppcore;protocol;dl;pthread</LibraryDependencies>
+      <LibraryDependencies>cppcore;protocol;dl;pthread;pcap</LibraryDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -184,7 +184,7 @@
       <AdditionalIncludeDirectories>%(ClCompile.AdditionalIncludeDirectories);$(SolutionDir)../Inc;$(RemoteRootDir)/../BoB10_SEDR/$(ProjectName)/Inc</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <LibraryDependencies>cppcore;protocol;dl;pthread</LibraryDependencies>
+      <LibraryDependencies>cppcore;protocol;dl;pthread;pcap</LibraryDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
@@ -192,7 +192,7 @@
       <AdditionalIncludeDirectories>%(ClCompile.AdditionalIncludeDirectories);$(SolutionDir)../Inc;$(RemoteRootDir)/../BoB10_SEDR/$(ProjectName)/Inc</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <LibraryDependencies>cppcore;protocol;dl;pthread</LibraryDependencies>
+      <LibraryDependencies>cppcore;protocol;dl;pthread;pcap</LibraryDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
@@ -200,7 +200,7 @@
       <AdditionalIncludeDirectories>%(ClCompile.AdditionalIncludeDirectories);$(SolutionDir)../Inc;$(RemoteRootDir)/../BoB10_SEDR/$(ProjectName)/Inc</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <LibraryDependencies>cppcore;protocol;dl;pthread</LibraryDependencies>
+      <LibraryDependencies>cppcore;protocol;dl;pthread;pcap</LibraryDependencies>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
