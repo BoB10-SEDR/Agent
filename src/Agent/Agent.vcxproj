@@ -131,10 +131,13 @@
     <TargetName>agent</TargetName>
   </PropertyGroup>
   <ItemGroup>
+    <ClCompile Include="CTcpClient.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CTcpClient.h" />
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="TcpClientException.h" />
   </ItemGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
     <ClCompile>
