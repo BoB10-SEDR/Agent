@@ -1,4 +1,6 @@
-#include "Device.h"
+#include "../header/stdafx.h"
+#include "../header/Device.h"
+
 
 std::string Device::getDeviceName()
 {
@@ -125,34 +127,17 @@ void Device::getDeviceServiceFile(std::vector<struct service> serviceLists)
 /*===========================================================================================================================*/
 
 
-std::string Device::SendToTerminal(const char* ShellCommand)
+void Device::getDeviceInfo()
 {
-	std::ostringstream	ShellCommandTemp;
-	FILE* SendShellCommand = popen(ShellCommand, "r");
+	m_sDeviceName = getDeviceName();
+	m_sDeviceModelName = getDeviceModelName();
+	m_sDeviceSerialNum = getDeviceSerialNum();
+	m_sDeviceIpAddr = getDeviceIpAddr();
+	m_sDeviceMacAddr = getDeviceMacAddr();
+	m_sDeviceArchitecture = getDeviceArchitecture();
+	m_sDeviceLinuxOsName = getDeviceOS();
 
-	while (!feof(SendShellCommand) && !ferror(SendShellCommand))
-	{
-		char ShellCommandBuf[128];
-		int ShellBytesRead = fread(ShellCommandBuf, 1, 128, SendShellCommand);
-		ShellCommandTemp.write(ShellCommandBuf, ShellBytesRead);
-	}
-
-	std::string RecievedData = ShellCommandTemp.str();
-	pclose(SendShellCommand);
-
-
-	std::string::size_type pos = 0;
-	std::string::size_type offset = 0;
-	const std::string SpacePattern = "\n";
-	const std::string Replace = "";
-
-	while ((pos = RecievedData.find(SpacePattern, offset)) != std::string::npos)
-	{
-		RecievedData.replace(RecievedData.begin() + pos, RecievedData.begin() + pos + SpacePattern.size(), Replace);
-		offset = pos + Replace.size();
-	}
-
-	return RecievedData;
+	ST_DEVICE_INFO.push_back(DeviceList(m_sDeviceName, m_sDeviceSerialNum, m_sDeviceModelName, m_sDeviceLinuxOsName, m_sDeviceIpAddr, m_sDeviceMacAddr, m_sDeviceArchitecture));
 }
 
 void Device::DeviceInit()
@@ -161,15 +146,6 @@ void Device::DeviceInit()
 	serviceLists.push_back(service("ssh.service", "/etc/ssh/sshd_config", {"/var/log/btmp","/var/log/auth.log"}));
 	serviceLists.push_back(service("vsftpd.service", "/etc/vsftpd.conf", {"/var/log/vsftpd.log", "/var/log/xferlog"}));
 	serviceLists.push_back(service("proftpd.service", "/usr/local/proftpd/etc/proftpd.conf", {"/var/log/proftpd/proftpd.log", "/var/log/proftpd/xferlog"}));
-	
-
-	m_sDeviceName = getDeviceName();
-	m_sDeviceModelName = getDeviceModelName();
-	m_sDeviceSerialNum = getDeviceSerialNum();
-	m_sDeviceIpAddr = getDeviceIpAddr();
-	m_sDeviceMacAddr = getDeviceMacAddr();
-	m_sDeviceArchitecture = getDeviceArchitecture();
-	m_sDeviceLinuxOsName = getDeviceOS();
 
 	getDeviceNetworkInfo();
 }
