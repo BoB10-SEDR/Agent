@@ -26,7 +26,6 @@ int CTcpClient::Connect(std::string ip, std::string port)
 
 	if (connect(clientSocket, (struct sockaddr*)&serverAddress, sizeof(serverAddress)) == -1)
 		throw CTcpClientException("connect Fail");
-
 	else {
 		printf("Connected...........\n");
 		return 0;

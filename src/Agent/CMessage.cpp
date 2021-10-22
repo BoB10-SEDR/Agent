@@ -60,8 +60,8 @@ void CMessage::PushSendMessage(PacketType type, PacketOpcode opcode, std::string
 void CMessage::PushReceiveMessage(ST_PACKET_INFO* stPacketInfo)
 {
 	sleep(0);
-	std::lock_guard<std::mutex> lock_guard(sendMessagemutex);
-	sendMessage.push(stPacketInfo);
+	std::lock_guard<std::mutex> lock_guard(receiveMessagemutex);
+	receiveMessage.push(stPacketInfo);
 }
 
 void CMessage::MatchReceiveMessage()
