@@ -1,4 +1,5 @@
 #include "CTcpClient.h"
+#include "CMessage.h"
 
 CTcpClient::CTcpClient()
 {
@@ -39,11 +40,12 @@ int CTcpClient::Send(std::string message)
 
 int CTcpClient::Recv()
 {
-	char message[BUFFER_SIZE];
-	int messageLength;
-
 	while (1)
 	{
+		sleep(0);
+		char message[BUFFER_SIZE];
+		int messageLength;
+
 		messageLength = read(clientSocket, &message, BUFFER_SIZE - 1);
 		printf("len : %d \n", messageLength);
 
@@ -55,26 +57,25 @@ int CTcpClient::Recv()
 		}
 		message[messageLength] = 0;
 
-		struct ST_PACKET_INFO stPacketRead;
-		core::ReadJsonFromString(&stPacketRead, message);
-		if (stPacketRead.destination == AGENT && stPacketRead.type == REQUEST)
-		{
-			tprintf(TEXT("RESQUEST OPCODE : %d\n"), stPacketRead.opcode);
-			tprintf(TEXT("RESQUEST DATA : %s\n"), stPacketRead.data.c_str());
-		}
-		else if (stPacketRead.destination == AGENT && stPacketRead.type == RESPONSE)
-		{
-			tprintf(TEXT("RESPONSE OPCODE : %d\n"), stPacketRead.opcode);
-			tprintf(TEXT("RESPONSE DATA : %s\n"), stPacketRead.data.c_str());
-		}
-		else
-		{
-			tprintf(TEXT("The message format is incorrect.The message format is incorrect. : %s\n"), message);
-		}
+		ST_PACKET_INFO* stPacketRead = new ST_PACKET_INFO();
+		core::ReadJsonFromString(stPacketRead, message); //제대로 변환이 되지 않는 메세지들에 대한 에러 처리 필요
+		MessageManager()->PushReceiveMessage(stPacketRead);
 	}
 }
 
 int CTcpClient::Disconnet()
 {
 	close(clientSocket);
+	clientSocket = -1;
+}
+
+int CTcpClient::Live()
+{
+	return clientSocket;
+}
+
+CTcpClient* CTcpClient::GetInstance()
+{
+	static CTcpClient instance;
+	return &instance;
 }

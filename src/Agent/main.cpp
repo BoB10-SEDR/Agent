@@ -1,40 +1,20 @@
 ﻿#include "stdafx.h"
-#include "CTcpClient.h"
-#include <thread>
+#include "CMessage.h"
 
-void SendTest(CTcpClient* client) {
-	while (true)
-	{
-		char message[BUFFER_SIZE];
-
-		printf("Message : ");
-		fgets(message, BUFFER_SIZE, stdin);
-
-		ST_PACKET_INFO stPacketSend(AGENT, SERVER, REQUEST, OPCODE1, message);
-
-		std::tstring jsPacketSend;
-		core::WriteJsonToString(&stPacketSend, jsPacketSend);
-
-		client->Send(jsPacketSend);
-	}
-}
+#define BUFFER_SIZE 1024
 
 int main(int argc, char* argv[])
 {
-	CTcpClient client;
-	std::vector<std::thread> works;
-
 	try
 	{
-		client.Connect("127.0.0.1", "12345");
+		std::future<void> a = std::async(std::launch::async, &CMessage::Init, MessageManager());
+		while (1)
+		{
+			char msg[BUFFER_SIZE];
 
-		works.push_back(std::thread(&CTcpClient::Recv, &client));
-		works.push_back(std::thread(&SendTest, &client));
-
-		works[0].join();
-		works[1].join();
-
-		client.Disconnet();
+			printf("Message : ");
+			fgets(msg, BUFFER_SIZE, stdin);
+		}
 	}
 	catch (std::exception& e)
 	{
