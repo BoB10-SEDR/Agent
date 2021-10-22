@@ -5,20 +5,15 @@
 
 int main(int argc, char* argv[])
 {
+	LoggerManager()->Info("Start Agent Program!");
 	try
 	{
 		std::future<void> a = std::async(std::launch::async, &CMessage::Init, MessageManager());
-		while (1)
-		{
-			char msg[BUFFER_SIZE];
-
-			printf("Message : ");
-			fgets(msg, BUFFER_SIZE, stdin);
-		}
 	}
 	catch (std::exception& e)
 	{
-		printf("%s\n", e.what());
+		LoggerManager()->Error(e.what());
 	}
+	LoggerManager()->Info("Terminate Agent Program!");
 	return 0;
 }
