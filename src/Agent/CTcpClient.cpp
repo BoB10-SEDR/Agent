@@ -1,8 +1,23 @@
 #include "CTcpClient.h"
+#include "CTcpClientException.h"
+#include "CMessage.h"
 
 CTcpClient::CTcpClient()
 {
+	connectStatus = -1;
+	memset(&serverAddress, 0, sizeof(serverAddress));
+	serverAddress.sin_family = AF_INET;
+	serverAddress.sin_addr.s_addr = inet_addr("127.0.0.1");
+	serverAddress.sin_port = htons(atoi("12345"));
+}
 
+CTcpClient::CTcpClient(std::string ip, std::string port)
+{
+	connectStatus = -1;
+	memset(&serverAddress, 0, sizeof(serverAddress));
+	serverAddress.sin_family = AF_INET;
+	serverAddress.sin_addr.s_addr = inet_addr(ip.c_str());
+	serverAddress.sin_port = htons(atoi(port.c_str()));
 }
 
 CTcpClient::~CTcpClient()
@@ -10,71 +25,106 @@ CTcpClient::~CTcpClient()
 
 }
 
-int CTcpClient::Connect(std::string ip, std::string port)
+int CTcpClient::Connect()
 {
-	struct sockaddr_in serverAddress;
-	memset(&serverAddress, 0, sizeof(serverAddress));
-	serverAddress.sin_family = AF_INET;
-	serverAddress.sin_addr.s_addr = inet_addr(ip.c_str());
-	serverAddress.sin_port = htons(atoi(port.c_str()));
-
 	clientSocket = socket(PF_INET, SOCK_STREAM, 0);
 
 	if (clientSocket < 0)
 		throw CTcpClientException("Socket Create Fail");
 
-	if (connect(clientSocket, (struct sockaddr*)&serverAddress, sizeof(serverAddress)) == -1)
-		throw CTcpClientException("connect Fail");
+	connectStatus = connect(clientSocket, (struct sockaddr*)&serverAddress, sizeof(serverAddress));
 
-	else {
-		printf("Connected...........\n");
-		return 0;
+	if (connectStatus == -1)
+		LoggerManager()->Warn("Connect Fail");
+	else
+		LoggerManager()->Info("Connected...........\n");
+
+	return 0;
+}
+
+int CTcpClient::Reconnect()
+{
+	clientSocket = socket(PF_INET, SOCK_STREAM, 0);
+
+	if (clientSocket < 0)
+		throw CTcpClientException("Socket Create Fail");
+
+	while (!Live()) {
+		sleep(5);
+
+		connectStatus = connect(clientSocket, (struct sockaddr*)&serverAddress, sizeof(serverAddress));
+
+
+		if (connectStatus == -1) {
+			LoggerManager()->Warn("Reconnect Fail");
+		}
+		else {
+			LoggerManager()->Info("Reconnected...........\n");
+			break;
+		}
 	}
+
+	return 0;
 }
 
 int CTcpClient::Send(std::string message)
 {
+	if (!Live()) {
+		Reconnect();
+	}
 	write(clientSocket, message.c_str(), message.length());
+	return 0;
 }
 
 int CTcpClient::Recv()
 {
-	char message[BUFFER_SIZE];
-	int messageLength;
+	if (!Live()) {
+		Reconnect();
+	}
 
 	while (1)
 	{
-		messageLength = read(clientSocket, &message, BUFFER_SIZE - 1);
-		printf("len : %d \n", messageLength);
+		char message[BUFFER_SIZE];
+		int messageLength;
 
+		messageLength = read(clientSocket, &message, BUFFER_SIZE - 1);
+		
 		if (messageLength <= 0)    // close request!
 		{
 			CTcpClient::Disconnet();
-			printf("closed client\n");
 			break;
 		}
+
+		LoggerManager()->Info(StringFormatter("Message Receive [%d] .........", messageLength));
 		message[messageLength] = 0;
 
-		struct ST_PACKET_INFO stPacketRead;
-		core::ReadJsonFromString(&stPacketRead, message);
-		if (stPacketRead.destination == AGENT && stPacketRead.type == REQUEST)
-		{
-			tprintf(TEXT("RESQUEST OPCODE : %d\n"), stPacketRead.opcode);
-			tprintf(TEXT("RESQUEST DATA : %s\n"), stPacketRead.data.c_str());
-		}
-		else if (stPacketRead.destination == AGENT && stPacketRead.type == RESPONSE)
-		{
-			tprintf(TEXT("RESPONSE OPCODE : %d\n"), stPacketRead.opcode);
-			tprintf(TEXT("RESPONSE DATA : %s\n"), stPacketRead.data.c_str());
-		}
-		else
-		{
-			tprintf(TEXT("The message format is incorrect.The message format is incorrect. : %s\n"), message);
-		}
+		ST_PACKET_INFO* stPacketRead = new ST_PACKET_INFO();
+		core::ReadJsonFromString(stPacketRead, message);
+		MessageManager()->PushReceiveMessage(stPacketRead);
 	}
+	return 0;
 }
 
 int CTcpClient::Disconnet()
 {
 	close(clientSocket);
+	LoggerManager()->Info("Disconneted...........\n");
+	clientSocket = -1;
+	connectStatus = -1;
+
+	return 0;
+}
+
+bool CTcpClient::Live()
+{
+	if (connectStatus == -1) {
+		return false;
+	}
+	return true;
+}
+
+CTcpClient* CTcpClient::GetInstance()
+{
+	static CTcpClient instance("127.0.0.1", "12345");
+	return &instance;
 }

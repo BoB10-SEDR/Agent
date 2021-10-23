@@ -1,6 +1,5 @@
 #pragma once
 #include "stdafx.h"
-#include <string>
 #include <exception>
 
 class CTcpClientException : public std::exception

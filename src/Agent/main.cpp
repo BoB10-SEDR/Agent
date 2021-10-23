@@ -1,44 +1,19 @@
 ﻿#include "stdafx.h"
-#include "CTcpClient.h"
-#include <thread>
+#include "CMessage.h"
 
-void SendTest(CTcpClient* client) {
-	while (true)
-	{
-		char message[BUFFER_SIZE];
-
-		printf("Message : ");
-		fgets(message, BUFFER_SIZE, stdin);
-
-		ST_PACKET_INFO stPacketSend(AGENT, SERVER, REQUEST, OPCODE1, message);
-
-		std::tstring jsPacketSend;
-		core::WriteJsonToString(&stPacketSend, jsPacketSend);
-
-		client->Send(jsPacketSend);
-	}
-}
+#define BUFFER_SIZE 1024
 
 int main(int argc, char* argv[])
 {
-	CTcpClient client;
-	std::vector<std::thread> works;
-
+	LoggerManager()->Info("Start Agent Program!");
 	try
 	{
-		client.Connect("127.0.0.1", "12345");
-
-		works.push_back(std::thread(&CTcpClient::Recv, &client));
-		works.push_back(std::thread(&SendTest, &client));
-
-		works[0].join();
-		works[1].join();
-
-		client.Disconnet();
+		std::future<void> a = std::async(std::launch::async, &CMessage::Init, MessageManager());
 	}
 	catch (std::exception& e)
 	{
-		printf("%s\n", e.what());
+		LoggerManager()->Error(e.what());
 	}
+	LoggerManager()->Info("Terminate Agent Program!");
 	return 0;
 }
