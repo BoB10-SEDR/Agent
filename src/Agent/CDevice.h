@@ -1,20 +1,5 @@
 #pragma once
-#include <string>
-#include <cstring>
-#include <unistd.h>
-#include <stdlib.h>
-#include <iostream>
-#include <fstream>
-#include <sstream>
-
-#include <pcap.h>
-#include <errno.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-
-#include <algorithm>
-#include <vector>
+#include "stdafx.h"
 
 struct service {
 	std::string name;
@@ -28,7 +13,24 @@ struct service {
 	{}
 };
 
-class Device
+struct DeviceList
+{
+	std::string DName;
+	std::string SerialNumber;
+	std::string modelName;
+	std::string os;
+	std::string IpAddr;
+	std::string MacAddr;
+	std::string CPUArch;
+
+	DeviceList(void) {}
+	DeviceList(std::string _dname, std::string _serialnumber, std::string _modelnumber, std::string _os, std::string _ipaddr, std::string _macaddr, std::string _cpuarch)
+		: DName(_dname), SerialNumber(_serialnumber), modelName(_modelnumber), os(_os), IpAddr(_ipaddr), MacAddr(_macaddr), CPUArch(_cpuarch)
+	{}
+};
+
+
+class CDevice
 {
 private:
 	std::string m_sDeviceName;
@@ -44,12 +46,13 @@ private:
 	std::string m_sDeviceNetworkMask;
 
 	std::vector<struct service> serviceLists;
+	std::vector<struct DeviceList> ST_DEVICE_INFO;
 
-	std::string SendToTerminal(const char* ShellCommand);
 
 public:
 	void DeviceInit();
 	void DeviceInfoPrint();
+	void GetDeviceInfo();
 
 	std::string getDeviceName();
 	std::string getDeviceModelName();
