@@ -1,12 +1,8 @@
 #pragma once
 #include "stdafx.h"
-#include <stdio.h>
-#include <string>
-#include <string.h>
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
-
 
 #define BUFFER_SIZE 1024
 

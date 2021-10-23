@@ -1,7 +1,6 @@
 #include "CMessage.h"
 #include "CTcpClient.h"
 #include "CSample.h"
-#include "CLogger.h"
 
 CMessage::CMessage()
 {
@@ -17,9 +16,9 @@ void CMessage::Init()
 	LoggerManager()->Info("CMessage INIT");
 	ClientManager()->Connect();
 
-	std::future<void> c = std::async(std::launch::async, &CMessage::MatchReceiveMessage, this);
+	std::future<void> a = std::async(std::launch::async, &CMessage::MatchReceiveMessage, this);
 	std::future<void> b = std::async(std::launch::async, &CMessage::ReceiveMessage, this);
-	std::future<void> a = std::async(std::launch::async, &CMessage::SendMessage, this);
+	std::future<void> c = std::async(std::launch::async, &CMessage::SendMessage, this);
 
 	a.get();
 	b.get();

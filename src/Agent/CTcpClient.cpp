@@ -1,5 +1,5 @@
 #include "CTcpClient.h"
-#include "TcpClientException.h"
+#include "CTcpClientException.h"
 #include "CMessage.h"
 
 CTcpClient::CTcpClient()
@@ -73,6 +73,7 @@ int CTcpClient::Send(std::string message)
 		Reconnect();
 	}
 	write(clientSocket, message.c_str(), message.length());
+	return 0;
 }
 
 int CTcpClient::Recv()
@@ -87,19 +88,21 @@ int CTcpClient::Recv()
 		int messageLength;
 
 		messageLength = read(clientSocket, &message, BUFFER_SIZE - 1);
-		printf("len : %d \n", messageLength);
-
+		
 		if (messageLength <= 0)    // close request!
 		{
 			CTcpClient::Disconnet();
 			break;
 		}
+
+		LoggerManager()->Info(StringFormatter("Message Receive [%d] .........", messageLength));
 		message[messageLength] = 0;
 
 		ST_PACKET_INFO* stPacketRead = new ST_PACKET_INFO();
-		core::ReadJsonFromString(stPacketRead, message); //제대로 변환이 되지 않는 메세지들에 대한 에러 처리 필요
+		core::ReadJsonFromString(stPacketRead, message);
 		MessageManager()->PushReceiveMessage(stPacketRead);
 	}
+	return 0;
 }
 
 int CTcpClient::Disconnet()
@@ -108,6 +111,8 @@ int CTcpClient::Disconnet()
 	LoggerManager()->Info("Disconneted...........\n");
 	clientSocket = -1;
 	connectStatus = -1;
+
+	return 0;
 }
 
 bool CTcpClient::Live()
