@@ -34,6 +34,16 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="header\Device.h" />
+    <ClInclude Include="header\policy.h" />
+    <ClInclude Include="header\stdafx.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\Device.cpp" />
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\policy.cpp" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{9b1012fc-840b-4387-895e-950c9076c9c4}</ProjectGuid>
     <Keyword>Linux</Keyword>
@@ -130,15 +140,6 @@
     <RemoteOutRelDir>$(RemoteProjectRelDir)/Build/$(configuration)$(platform)</RemoteOutRelDir>
     <TargetName>agent</TargetName>
   </PropertyGroup>
-  <ItemGroup>
-    <ClCompile Include="baseCode.cpp" />
-    <ClCompile Include="Device.cpp" />
-    <ClCompile Include="main.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Device.h" />
-    <ClInclude Include="stdafx.h" />
-  </ItemGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
     <ClCompile>
       <AdditionalIncludeDirectories>%(ClCompile.AdditionalIncludeDirectories);$(SolutionDir)../Inc;$(RemoteRootDir)/../BoB10_SEDR/$(ProjectName)/Inc</AdditionalIncludeDirectories>
