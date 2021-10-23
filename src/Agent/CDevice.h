@@ -30,7 +30,7 @@ struct DeviceList
 };
 
 
-class Device
+class CDevice
 {
 private:
 	std::string m_sDeviceName;
@@ -52,7 +52,7 @@ private:
 public:
 	void DeviceInit();
 	void DeviceInfoPrint();
-	void getDeviceInfo();
+	void GetDeviceInfo();
 
 	std::string getDeviceName();
 	std::string getDeviceModelName();

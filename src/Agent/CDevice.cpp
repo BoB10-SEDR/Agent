@@ -1,44 +1,43 @@
-#include "../header/stdafx.h"
-#include "../header/Device.h"
+#include "CDevice.h"
 
 
-std::string Device::getDeviceName()
+std::string CDevice::getDeviceName()
 {
 	std::string DeviceNameBuf = SendToTerminal("hostname");
 	return DeviceNameBuf;
 }
 
-std::string Device::getDeviceModelName()
+std::string CDevice::getDeviceModelName()
 {
 	std::string ModelNameBuf = SendToTerminal("cat /proc/cpuinfo | grep Model | awk '{print $3 $4, $5, $6, $7, $8, $9}'");
 	return ModelNameBuf;
 }
 
-std::string Device::getDeviceSerialNum()
+std::string CDevice::getDeviceSerialNum()
 {
 	std::string SerialNumBuf = SendToTerminal("cat /proc/cpuinfo | grep Serial | awk '{print $3}'");
 	return SerialNumBuf;
 }
 
-std::string Device::getDeviceIpAddr()
+std::string CDevice::getDeviceIpAddr()
 {
 	std::string DeviceIpAddrBuf = SendToTerminal("ip addr | grep 'dynamic noprefix' | awk '{print $2}'");
 	return DeviceIpAddrBuf;
 }
 
-std::string Device::getDeviceMacAddr()
+std::string CDevice::getDeviceMacAddr()
 {
 	std::string DeviceMacAddrBuf = SendToTerminal("ifconfig | grep 'ether' | awk '{print $2}'");
 	return DeviceMacAddrBuf;
 }
 
-std::string Device::getDeviceArchitecture()
+std::string CDevice::getDeviceArchitecture()
 {
 	std::string DeviceArchitectureBuf = SendToTerminal("cat /proc/cpuinfo | grep 'model name' | awk '!x[$0]++ {print $4, $5, $6}'");
 	return DeviceArchitectureBuf;
 }
 
-std::string Device::getDeviceOS()
+std::string CDevice::getDeviceOS()
 {
 	std::string OsNameBuf = SendToTerminal("cat /etc/issue | awk '{print $1, $2, $3}'");
 	std::string KernelVersionBuf = SendToTerminal("uname -r");
@@ -46,7 +45,7 @@ std::string Device::getDeviceOS()
 	return OsNameBuf + KernelVersionBuf;
 }
 
-void Device::getDeviceNetworkInfo()
+void CDevice::getDeviceNetworkInfo()
 {
 	char errbuf[PCAP_ERRBUF_SIZE];
 	int i = 0, inum = 1;
@@ -76,6 +75,7 @@ void Device::getDeviceNetworkInfo()
 	}
 
 	addr.s_addr = netp;
+	printf("%d\n", netp);
 	m_sDeviceNetwork = inet_ntoa(addr);
 
 	if (m_sDeviceNetwork.c_str() == NULL)
@@ -85,6 +85,7 @@ void Device::getDeviceNetworkInfo()
 	}
 
 	addr.s_addr = maskp;
+	printf("%d\n", maskp);
 	m_sDeviceNetworkMask = inet_ntoa(addr);
 
 	if (m_sDeviceNetworkMask.c_str() == NULL)
@@ -96,7 +97,7 @@ void Device::getDeviceNetworkInfo()
 	pcap_freealldevs(alldevs);
 }
 
-void Device::getDeviceServiceFile(std::vector<struct service> serviceLists)
+void CDevice::getDeviceServiceFile(std::vector<struct service> serviceLists)
 {
 	std::string LiveServices2 = SendToTerminal("systemctl | awk '{print $1}'"); // case 2 systemctl »ç¿ë½Ã
 
@@ -127,7 +128,7 @@ void Device::getDeviceServiceFile(std::vector<struct service> serviceLists)
 /*===========================================================================================================================*/
 
 
-void Device::getDeviceInfo()
+void CDevice::GetDeviceInfo()
 {
 	m_sDeviceName = getDeviceName();
 	m_sDeviceModelName = getDeviceModelName();
@@ -137,20 +138,21 @@ void Device::getDeviceInfo()
 	m_sDeviceArchitecture = getDeviceArchitecture();
 	m_sDeviceLinuxOsName = getDeviceOS();
 
+	getDeviceNetworkInfo();
 	ST_DEVICE_INFO.push_back(DeviceList(m_sDeviceName, m_sDeviceSerialNum, m_sDeviceModelName, m_sDeviceLinuxOsName, m_sDeviceIpAddr, m_sDeviceMacAddr, m_sDeviceArchitecture));
 }
 
-void Device::DeviceInit()
+void CDevice::DeviceInit()
 {
 	// service List init
 	serviceLists.push_back(service("ssh.service", "/etc/ssh/sshd_config", {"/var/log/btmp","/var/log/auth.log"}));
 	serviceLists.push_back(service("vsftpd.service", "/etc/vsftpd.conf", {"/var/log/vsftpd.log", "/var/log/xferlog"}));
 	serviceLists.push_back(service("proftpd.service", "/usr/local/proftpd/etc/proftpd.conf", {"/var/log/proftpd/proftpd.log", "/var/log/proftpd/xferlog"}));
 
-	getDeviceNetworkInfo();
+	GetDeviceInfo();
 }
 
-void Device::DeviceInfoPrint()
+void CDevice::DeviceInfoPrint()
 {
 	printf("[+] Device name : %s\n", m_sDeviceName.c_str());
 	printf("[+] Device modelName : %s\n", m_sDeviceModelName.c_str());

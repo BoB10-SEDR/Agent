@@ -1,6 +1,6 @@
-﻿#include "../header/stdafx.h"
-#include "../header/Device.h"
-#include "../header/policy.h"
+﻿#include "stdafx.h"
+#include "CDevice.h"
+#include "CPolicy.h"
 
 
 
@@ -36,8 +36,7 @@ std::string SendToTerminal(const char* ShellCommand)
 
 int main(int argc, char* argv[])
 {
-	Device dev = Device();
-	dev.getDeviceInfo();
+	CDevice dev = CDevice();
 	dev.DeviceInit();
 	dev.DeviceInfoPrint();
 
