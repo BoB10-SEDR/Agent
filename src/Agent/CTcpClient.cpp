@@ -1,9 +1,23 @@
 #include "CTcpClient.h"
+#include "TcpClientException.h"
 #include "CMessage.h"
 
 CTcpClient::CTcpClient()
 {
+	connectStatus = -1;
+	memset(&serverAddress, 0, sizeof(serverAddress));
+	serverAddress.sin_family = AF_INET;
+	serverAddress.sin_addr.s_addr = inet_addr("127.0.0.1");
+	serverAddress.sin_port = htons(atoi("12345"));
+}
 
+CTcpClient::CTcpClient(std::string ip, std::string port)
+{
+	connectStatus = -1;
+	memset(&serverAddress, 0, sizeof(serverAddress));
+	serverAddress.sin_family = AF_INET;
+	serverAddress.sin_addr.s_addr = inet_addr(ip.c_str());
+	serverAddress.sin_port = htons(atoi(port.c_str()));
 }
 
 CTcpClient::~CTcpClient()
@@ -11,37 +25,64 @@ CTcpClient::~CTcpClient()
 
 }
 
-int CTcpClient::Connect(std::string ip, std::string port)
+int CTcpClient::Connect()
 {
-	struct sockaddr_in serverAddress;
-	memset(&serverAddress, 0, sizeof(serverAddress));
-	serverAddress.sin_family = AF_INET;
-	serverAddress.sin_addr.s_addr = inet_addr(ip.c_str());
-	serverAddress.sin_port = htons(atoi(port.c_str()));
-
 	clientSocket = socket(PF_INET, SOCK_STREAM, 0);
 
 	if (clientSocket < 0)
 		throw CTcpClientException("Socket Create Fail");
 
-	if (connect(clientSocket, (struct sockaddr*)&serverAddress, sizeof(serverAddress)) == -1)
-		throw CTcpClientException("connect Fail");
-	else {
-		printf("Connected...........\n");
-		return 0;
+	connectStatus = connect(clientSocket, (struct sockaddr*)&serverAddress, sizeof(serverAddress));
+
+	if (connectStatus == -1)
+		LoggerManager()->Warn("Connect Fail");
+	else
+		LoggerManager()->Info("Connected...........\n");
+
+	return 0;
+}
+
+int CTcpClient::Reconnect()
+{
+	clientSocket = socket(PF_INET, SOCK_STREAM, 0);
+
+	if (clientSocket < 0)
+		throw CTcpClientException("Socket Create Fail");
+
+	while (!Live()) {
+		sleep(5);
+
+		connectStatus = connect(clientSocket, (struct sockaddr*)&serverAddress, sizeof(serverAddress));
+
+
+		if (connectStatus == -1) {
+			LoggerManager()->Warn("Reconnect Fail");
+		}
+		else {
+			LoggerManager()->Info("Reconnected...........\n");
+			break;
+		}
 	}
+
+	return 0;
 }
 
 int CTcpClient::Send(std::string message)
 {
+	if (!Live()) {
+		Reconnect();
+	}
 	write(clientSocket, message.c_str(), message.length());
 }
 
 int CTcpClient::Recv()
 {
+	if (!Live()) {
+		Reconnect();
+	}
+
 	while (1)
 	{
-		sleep(0);
 		char message[BUFFER_SIZE];
 		int messageLength;
 
@@ -51,7 +92,6 @@ int CTcpClient::Recv()
 		if (messageLength <= 0)    // close request!
 		{
 			CTcpClient::Disconnet();
-			printf("closed client\n");
 			break;
 		}
 		message[messageLength] = 0;
@@ -65,16 +105,21 @@ int CTcpClient::Recv()
 int CTcpClient::Disconnet()
 {
 	close(clientSocket);
+	LoggerManager()->Info("Disconneted...........\n");
 	clientSocket = -1;
+	connectStatus = -1;
 }
 
-int CTcpClient::Live()
+bool CTcpClient::Live()
 {
-	return clientSocket;
+	if (connectStatus == -1) {
+		return false;
+	}
+	return true;
 }
 
 CTcpClient* CTcpClient::GetInstance()
 {
-	static CTcpClient instance;
+	static CTcpClient instance("127.0.0.1", "12345");
 	return &instance;
 }

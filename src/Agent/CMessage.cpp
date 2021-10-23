@@ -1,6 +1,7 @@
 #include "CMessage.h"
 #include "CTcpClient.h"
 #include "CSample.h"
+#include "CLogger.h"
 
 CMessage::CMessage()
 {
@@ -13,7 +14,9 @@ CMessage::~CMessage()
 
 void CMessage::Init() 
 {
-	ClientManager()->Connect("127.0.0.1", "12345");
+	LoggerManager()->Info("CMessage INIT");
+	ClientManager()->Connect();
+
 	std::future<void> c = std::async(std::launch::async, &CMessage::MatchReceiveMessage, this);
 	std::future<void> b = std::async(std::launch::async, &CMessage::ReceiveMessage, this);
 	std::future<void> a = std::async(std::launch::async, &CMessage::SendMessage, this);
@@ -25,7 +28,7 @@ void CMessage::Init()
 
 void CMessage::SendMessage()
 {
-	printf("start SendMessage\n");
+	LoggerManager()->Info("Start SendMessage\n");
 	while (1) {
 		sleep(0);
 		std::lock_guard<std::mutex> lock_guard(sendMessagemutex);
@@ -38,15 +41,17 @@ void CMessage::SendMessage()
 
 		std::tstring jsPacketSend;
 		core::WriteJsonToString(stPacketSend, jsPacketSend);
-
 		ClientManager()->Send(jsPacketSend);
 	}
 }
 
 void CMessage::ReceiveMessage()
 {
-	printf("start ReceiveMessage\n");
-	ClientManager()->Recv();
+	LoggerManager()->Info("Start ReceiveMessage\n");
+	while(1){
+		sleep(0);
+		ClientManager()->Recv();
+	}
 }
 
 void CMessage::PushSendMessage(PacketType type, PacketOpcode opcode, std::string message)
@@ -66,7 +71,7 @@ void CMessage::PushReceiveMessage(ST_PACKET_INFO* stPacketInfo)
 
 void CMessage::MatchReceiveMessage()
 {
-	printf("start MatchReceiveMessage\n");
+	LoggerManager()->Info("Start MatchReceiveMessage\n");
 	std::future<void> result;
 	CSample* sample = new CSample();
 
@@ -80,8 +85,7 @@ void CMessage::MatchReceiveMessage()
 
 		ST_PACKET_INFO* stPacketSend = receiveMessage.front();
 		receiveMessage.pop();
-		printf("Match [%d] %d\n", receiveMessage.size(), stPacketSend->opcode);
-
+		
 		switch (stPacketSend->opcode) {
 		case OPCODE1:
 			result = std::async(std::launch::async, &CSample::Event1, sample);
@@ -93,7 +97,7 @@ void CMessage::MatchReceiveMessage()
 			result = std::async(std::launch::async, &CSample::Event3, sample, stPacketSend->data.c_str());
 			break;
 		default:
-			printf("Message Error : %s", stPacketSend->data.c_str());
+			LoggerManager()->Error(stPacketSend->data.c_str());
 			break;
 		}
 	}
