@@ -121,7 +121,7 @@ bool CPolicy::isExist()
 /*-------------------------------------------------------------------------------------------------------*/
 std::string CPolicy::getActivePolicies()
 {
-	// ´ëÀÀ Á¤Ã¥ ÆÄÀÏ »ý¼º ³¯Â¥¿Í ½ÇÇà ³¯Â¥°¡ ´Ù¸£´Ù¸é Á¤Ã¥ ÆÄÀÏÀÌ ½ÇÇàµÈ Àû ÀÖ´Ù´Â °Í.
+	// ëŒ€ì‘ ì •ì±… íŒŒì¼ ìƒì„± ë‚ ì§œì™€ ì‹¤í–‰ ë‚ ì§œê°€ ë‹¤ë¥´ë‹¤ë©´ ì •ì±… íŒŒì¼ì´ ì‹¤í–‰ëœ ì  ìžˆë‹¤ëŠ” ê²ƒ.
 	std::string activatedpolicyInfo;
 
 
@@ -141,7 +141,7 @@ std::string CPolicy::getActivePolicies()
 /*-------------------------------------------------------------------------------------------------------*/
 std::string CPolicy::getInactivatePolicies()
 {
-	// ´ëÀÀ Á¤Ã¥ ÆÄÀÏ »ý¼º ³¯Â¥¿Í ½ÇÇà³¯Â¥°¡ ¿ÏÀüÈ÷ °°´Ù¸é ½ÇÇàµÈ Àû ¾ø´Â °ÍÀÓ.
+	// ëŒ€ì‘ ì •ì±… íŒŒì¼ ìƒì„± ë‚ ì§œì™€ ì‹¤í–‰ë‚ ì§œê°€ ì™„ì „ížˆ ê°™ë‹¤ë©´ ì‹¤í–‰ëœ ì  ì—†ëŠ” ê²ƒìž„.
 
 	std::string InactivatedpolicyInfo;
 
@@ -201,7 +201,7 @@ bool CPolicy::active(std::string sPid, std::string sPName)
 		else
 		{
 			//download(sPid, sPName);
-			ActiveRes = 0;
+			ActiveRes = 1;
 		}
 	}
 	return ActiveRes;
@@ -239,8 +239,8 @@ bool CPolicy::isActive()
 }
 */
 
-// getActivePolicies()´Â Àåºñ°¡ °¡Áø ´ëÀÀ Á¤Ã¥ ÆÄÀÏÁß¿¡ Àû¿ëµÈ ¾Öµé¸¸ ¸®½ºÆ®·Î ¹ÝÈ¯ÇÔ. -> Àåºñ¿¡ Àû¿ëµÈ Á¤Ã¥ »õ·Î°íÄ§ ¿ëµµ
-// isActive() Æ¯Á¤ Á¤Ã¥À» Âó¾î¼­ ±× Á¤Ã¥ÀÌ Àû¿ëµÇ¾îÀÖ´ÂÁö È®ÀÎÇÏ´Â ±â´É
+// getActivePolicies()ëŠ” ìž¥ë¹„ê°€ ê°€ì§„ ëŒ€ì‘ ì •ì±… íŒŒì¼ì¤‘ì— ì ìš©ëœ ì• ë“¤ë§Œ ë¦¬ìŠ¤íŠ¸ë¡œ ë°˜í™˜í•¨. -> ìž¥ë¹„ì— ì ìš©ëœ ì •ì±… ìƒˆë¡œê³ ì¹¨ ìš©ë„
+// isActive() íŠ¹ì • ì •ì±…ì„ ì°ì–´ì„œ ê·¸ ì •ì±…ì´ ì ìš©ë˜ì–´ìžˆëŠ”ì§€ í™•ì¸í•˜ëŠ” ê¸°ëŠ¥
 
 
 
