@@ -179,9 +179,10 @@ void CPolicy::getPolicyInfo()
 	m_sgetInactivatePolicies = getInactivatePolicies();
 
 
-	std::string t_spid = "3";
-	std::string t_spname = "policy3.sh";
+	std::string t_spid = "1";
+	std::string t_spname = "policy1.sh";
 	m_sactive = active(t_spid, t_spname);
+	m_sactiveFull = activeFull();
 }
 
 
@@ -201,30 +202,38 @@ bool CPolicy::active(std::string sPid, std::string sPName)
 		else
 		{
 			//download(sPid, sPName);
-			ActiveRes = 0;
+			ActiveRes = 1;
 		}
 	}
 	return ActiveRes;
 }
+bool CPolicy::activeFull()
+{
+	int ActiveFullRes;
 
+	for (int x = 0; x < PpL[x].size(); x++)
+	{
+		SendToTerminal(PpL[x].c_str());
+
+		ActiveFullRes = 0;
+	}
+	return ActiveFullRes;
+}
 
 
 /*
 * 
 bool CPolicy::download()
-{
+{// download() 실행 조건 -> 서버로부터 api를 통해 특정 정책을 적용하라는 명령이 온다면
+// 해당 데이터에 포함된 정책 파일명이 Agent 본인이 관리하고 있는지(파일이 있는지) 확인하고
+// 있다면 active() 함수로 값을 넘기고, 없다면 서버에 GET 요청한다.
+
+
 	SendToTerminal("mkdir /SEDR_Policy");
+	// 먼저 정책 스크립트를 생성할 디렉토리를 만든다.
+	// 만약 같은 이름의 디렉토리가 있다면 그냥 넘어갈 것.
 }
 
-
-
-
-
-
-
-bool CPolicy::activeFull()
-{
-}
 
 bool CPolicy::Inactivate()
 {

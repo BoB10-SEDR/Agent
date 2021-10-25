@@ -53,7 +53,7 @@ public:
 
 	std::string getActivePolicies();
 	std::string getInactivatePolicies();
-	bool download(std::string sPid, std::string sPName);
+	//bool download(std::string sPid, std::string sPName);
 	bool active(std::string sPid, std::string sPName);
 	bool activeFull();
 	bool Inactivate();
