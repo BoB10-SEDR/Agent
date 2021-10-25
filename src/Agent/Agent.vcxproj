@@ -36,12 +36,21 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CDevice.cpp" />
-    <ClCompile Include="main.cpp" />
+    <ClCompile Include="CLogger.cpp" />
+    <ClCompile Include="CMessage.cpp" />
     <ClCompile Include="CPolicy.cpp" />
+    <ClCompile Include="CSample.cpp" />
+    <ClCompile Include="CTcpClient.cpp" />
+    <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CDevice.h" />
+    <ClInclude Include="CLogger.h" />
+    <ClInclude Include="CMessage.h" />
     <ClInclude Include="CPolicy.h" />
+    <ClInclude Include="CSample.h" />
+    <ClInclude Include="CTcpClient.h" />
+    <ClInclude Include="CTcpClientException.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -140,21 +149,6 @@
     <RemoteOutRelDir>$(RemoteProjectRelDir)/Build/$(configuration)$(platform)</RemoteOutRelDir>
     <TargetName>agent</TargetName>
   </PropertyGroup>
-  <ItemGroup>
-    <ClCompile Include="CLogger.cpp" />
-    <ClCompile Include="CTcpClient.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="CMessage.cpp" />
-    <ClCompile Include="CSample.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="CLogger.h" />
-    <ClInclude Include="CTcpClient.h" />
-    <ClInclude Include="CMessage.h" />
-    <ClInclude Include="CSample.h" />
-    <ClInclude Include="stdafx.h" />
-    <ClInclude Include="CTcpClientException.h" />
-  </ItemGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
     <ClCompile>
       <AdditionalIncludeDirectories>%(ClCompile.AdditionalIncludeDirectories);$(SolutionDir)../Inc;$(RemoteRootDir)/../BoB10_SEDR/$(ProjectName)/Inc</AdditionalIncludeDirectories>
