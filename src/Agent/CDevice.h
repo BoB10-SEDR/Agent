@@ -67,7 +67,6 @@ public:
 };
 
 
-
 #if 0
 typedef struct pcap_if pcap_if_t;
 struct pcap_if {

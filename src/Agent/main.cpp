@@ -2,8 +2,6 @@
 #include "CDevice.h"
 #include "CPolicy.h"
 
-
-
 std::string SendToTerminal(const char* ShellCommand)
 {
 	std::ostringstream	ShellCommandTemp;
@@ -41,8 +39,8 @@ int main(int argc, char* argv[])
 	dev.DeviceInfoPrint();
 
 	CPolicy pol = CPolicy();
-	pol.CPolicyInit();
 	pol.getPolicyInfo();
+	pol.PolicyInfoPrint();
 
 
 	return 0;
