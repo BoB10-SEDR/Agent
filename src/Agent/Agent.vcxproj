@@ -140,9 +140,25 @@
     <RemoteOutRelDir>$(RemoteProjectRelDir)/Build/$(configuration)$(platform)</RemoteOutRelDir>
     <TargetName>agent</TargetName>
   </PropertyGroup>
+  <ItemGroup>
+    <ClCompile Include="CLogger.cpp" />
+    <ClCompile Include="CTcpClient.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="CMessage.cpp" />
+    <ClCompile Include="CSample.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="CLogger.h" />
+    <ClInclude Include="CTcpClient.h" />
+    <ClInclude Include="CMessage.h" />
+    <ClInclude Include="CSample.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="CTcpClientException.h" />
+  </ItemGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
     <ClCompile>
       <AdditionalIncludeDirectories>%(ClCompile.AdditionalIncludeDirectories);$(SolutionDir)../Inc;$(RemoteRootDir)/../BoB10_SEDR/$(ProjectName)/Inc</AdditionalIncludeDirectories>
+      <CppLanguageStandard>c++17</CppLanguageStandard>
     </ClCompile>
     <Link>
       <LibraryDependencies>cppcore;protocol;dl;pthread;pcap</LibraryDependencies>
@@ -151,6 +167,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
     <ClCompile>
       <AdditionalIncludeDirectories>%(ClCompile.AdditionalIncludeDirectories);$(SolutionDir)../Inc;$(RemoteRootDir)/../BoB10_SEDR/$(ProjectName)/Inc</AdditionalIncludeDirectories>
+      <CppLanguageStandard>c++17</CppLanguageStandard>
     </ClCompile>
     <Link>
       <LibraryDependencies>cppcore;protocol;dl;pthread;pcap</LibraryDependencies>
@@ -159,6 +176,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
     <ClCompile>
       <AdditionalIncludeDirectories>%(ClCompile.AdditionalIncludeDirectories);$(SolutionDir)../Inc;$(RemoteRootDir)/../BoB10_SEDR/$(ProjectName)/Inc</AdditionalIncludeDirectories>
+      <CppLanguageStandard>c++17</CppLanguageStandard>
     </ClCompile>
     <Link>
       <LibraryDependencies>cppcore;protocol;dl;pthread;pcap</LibraryDependencies>
@@ -167,6 +185,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
     <ClCompile>
       <AdditionalIncludeDirectories>%(ClCompile.AdditionalIncludeDirectories);$(SolutionDir)../Inc;$(RemoteRootDir)/../BoB10_SEDR/$(ProjectName)/Inc</AdditionalIncludeDirectories>
+      <CppLanguageStandard>c++17</CppLanguageStandard>
     </ClCompile>
     <Link>
       <LibraryDependencies>cppcore;protocol;dl;pthread;pcap</LibraryDependencies>
@@ -175,6 +194,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <AdditionalIncludeDirectories>%(ClCompile.AdditionalIncludeDirectories);$(SolutionDir)../Inc;$(RemoteRootDir)/../BoB10_SEDR/$(ProjectName)/Inc</AdditionalIncludeDirectories>
+      <CppLanguageStandard>c++17</CppLanguageStandard>
     </ClCompile>
     <Link>
       <LibraryDependencies>cppcore;protocol;dl;pthread;pcap</LibraryDependencies>
@@ -183,6 +203,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <AdditionalIncludeDirectories>%(ClCompile.AdditionalIncludeDirectories);$(SolutionDir)../Inc;$(RemoteRootDir)/../BoB10_SEDR/$(ProjectName)/Inc</AdditionalIncludeDirectories>
+      <CppLanguageStandard>c++17</CppLanguageStandard>
     </ClCompile>
     <Link>
       <LibraryDependencies>cppcore;protocol;dl;pthread;pcap</LibraryDependencies>
@@ -191,6 +212,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
     <ClCompile>
       <AdditionalIncludeDirectories>%(ClCompile.AdditionalIncludeDirectories);$(SolutionDir)../Inc;$(RemoteRootDir)/../BoB10_SEDR/$(ProjectName)/Inc</AdditionalIncludeDirectories>
+      <CppLanguageStandard>c++17</CppLanguageStandard>
     </ClCompile>
     <Link>
       <LibraryDependencies>cppcore;protocol;dl;pthread;pcap</LibraryDependencies>
@@ -199,6 +221,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
     <ClCompile>
       <AdditionalIncludeDirectories>%(ClCompile.AdditionalIncludeDirectories);$(SolutionDir)../Inc;$(RemoteRootDir)/../BoB10_SEDR/$(ProjectName)/Inc</AdditionalIncludeDirectories>
+      <CppLanguageStandard>c++17</CppLanguageStandard>
     </ClCompile>
     <Link>
       <LibraryDependencies>cppcore;protocol;dl;pthread;pcap</LibraryDependencies>
