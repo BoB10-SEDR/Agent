@@ -8,6 +8,7 @@
     <ClCompile Include="CSample.cpp" />
     <ClCompile Include="CTcpClient.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Function.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CDevice.h" />
@@ -18,5 +19,6 @@
     <ClInclude Include="CTcpClient.h" />
     <ClInclude Include="CTcpClientException.h" />
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="Function.h" />
   </ItemGroup>
 </Project>

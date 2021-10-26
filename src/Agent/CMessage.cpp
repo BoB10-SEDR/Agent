@@ -1,6 +1,7 @@
 #include "CMessage.h"
 #include "CTcpClient.h"
 #include "CSample.h"
+#include "Function.h"
 
 CMessage::CMessage()
 {
@@ -95,8 +96,44 @@ void CMessage::MatchReceiveMessage()
 		case OPCODE3:
 			result = std::async(std::launch::async, &CSample::Event3, sample, stPacketSend->data.c_str());
 			break;
+		case PROCESS_LIST:
+			LoggerManager()->Info(StringFormatter("Opcode : %d\tData : %s\n", stPacketSend->opcode, stPacketSend->data.c_str()));
+			result = std::async(std::launch::async, func::GetProcessList);
+			break;
+		case FD_LIST:
+			LoggerManager()->Info(StringFormatter("Opcode : %d\tData : %s\n", stPacketSend->opcode, stPacketSend->data.c_str()));
+			result = std::async(std::launch::async, func::GetFileDescriptorList);
+			break;
+		case MONITOR_ACTIVATE:
+			LoggerManager()->Info(StringFormatter("Opcode : %d\tData : %s\n", stPacketSend->opcode, stPacketSend->data.c_str()));
+			result = std::async(std::launch::async, func::StartMonitoring, stPacketSend->data);
+			break;
+		case MONITOR_INACTIVATE:
+			LoggerManager()->Info(StringFormatter("Opcode : %d\tData : %s\n", stPacketSend->opcode, stPacketSend->data.c_str()));
+			result = std::async(std::launch::async, func::StopMonitoring, stPacketSend->data);
+			break;
+		case DEVICE_INFO:
+			LoggerManager()->Info(StringFormatter("Opcode : %d\tData : %s\n", stPacketSend->opcode, stPacketSend->data.c_str()));
+			result = std::async(std::launch::async, func::GetDeviceInfo);
+			break;
+		case MODULE_INFO:
+			LoggerManager()->Info(StringFormatter("Opcode : %d\tData : %s\n", stPacketSend->opcode, stPacketSend->data.c_str()));
+			result = std::async(std::launch::async, func::GetModuleInfo);
+			break;
+		case POLICY_ACTIVATE:
+			LoggerManager()->Info(StringFormatter("Opcode : %d\tData : %s\n", stPacketSend->opcode, stPacketSend->data.c_str()));
+			result = std::async(std::launch::async, func::ActivatePolicy, stPacketSend->data);
+			break;
+		case POLICY_INACTIVATE:
+			LoggerManager()->Info(StringFormatter("Opcode : %d\tData : %s\n", stPacketSend->opcode, stPacketSend->data.c_str()));
+			result = std::async(std::launch::async, func::InactivatePolicy, stPacketSend->data);
+			break;
+		case CHECK_ACTIVATE:
+			LoggerManager()->Info(StringFormatter("Opcode : %d\tData : %s\n", stPacketSend->opcode, stPacketSend->data.c_str()));
+			result = std::async(std::launch::async, func::ActivateCheck, stPacketSend->data);
+			break;
 		default:
-			LoggerManager()->Error(stPacketSend->data.c_str());
+			LoggerManager()->Error(StringFormatter("Packet Type Error : %s", stPacketSend->data.c_str()));
 			break;
 		}
 	}

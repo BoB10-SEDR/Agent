@@ -41,6 +41,7 @@
     <ClCompile Include="CPolicy.cpp" />
     <ClCompile Include="CSample.cpp" />
     <ClCompile Include="CTcpClient.cpp" />
+    <ClCompile Include="Function.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -51,6 +52,7 @@
     <ClInclude Include="CSample.h" />
     <ClInclude Include="CTcpClient.h" />
     <ClInclude Include="CTcpClientException.h" />
+    <ClInclude Include="Function.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
