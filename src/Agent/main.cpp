@@ -2,6 +2,7 @@
 #include "CDevice.h"
 #include "CPolicy.h"
 #include "CMessage.h"
+#include "CMonitoring.h"
 
 #define BUFFER_SIZE 1024
 
@@ -34,6 +35,33 @@ std::string SendToTerminal(const char* ShellCommand)
 
 	return RecievedData;
 }
+void AddLogPath()
+{
+	while (true)
+	{
+		sleep(0);
+		char agentInfo[BUFFER_SIZE];
+		int select;
+		printf("Path : ");
+		fgets(agentInfo, BUFFER_SIZE, stdin);
+		*(agentInfo + (strlen(agentInfo) - 1)) = 0;
+
+		printf("Opcode : ");
+		scanf("%d", &select);
+		printf("opcode : %d\n", select);
+
+		while (getchar() != '\n');
+
+		if (select == 1)
+		{
+			std::cout << MonitoringManager()->AddMonitoringTarget(agentInfo) << std::endl;
+		}
+		else
+		{
+			std::cout << MonitoringManager()->RemoveMonitoringTarget(agentInfo) << std::endl;
+		}
+	}
+}
 
 int main(int argc, char* argv[])
 {
@@ -41,6 +69,8 @@ int main(int argc, char* argv[])
 	try
 	{
 		std::future<void> a = std::async(std::launch::async, &CMessage::Init, MessageManager());
+		std::future<void> b = std::async(std::launch::async, &CMonitoring::StartMonitoring, MonitoringManager());
+		std::future<void> c = std::async(std::launch::async, &AddLogPath);
 	}
 	catch (std::exception& e)
 	{
