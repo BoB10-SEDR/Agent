@@ -4,10 +4,10 @@
 namespace func
 {
 	void GetProcessList();
-	void GetFileDescriptorList();
+	void GetFileDescriptorList(std::string data);
 	void StartMonitoring(std::string data);
 	void StopMonitoring(std::string data);
-	void GetMonitoringInfo();
+	void SendMonitoringInfo(std::string path, std::string data);
 	void GetDeviceInfo();
 	void GetModuleInfo();
 	void ActivatePolicy(std::string data);

@@ -1,70 +1,109 @@
 #include "Function.h"
 #include "CMessage.h"
 #include "CDevice.h"
+#include "CMonitoring.h"
 
 void func::GetProcessList()
 {
+	sleep(0);
 	LoggerManager()->Info("Response GetProcessList");
 	ST_PROCESS_LIST* processList = new ST_PROCESS_LIST();
 
-	processList->processLists.push_back(ST_PROCESS_INFO(1, "/test1"));
-	processList->processLists.push_back(ST_PROCESS_INFO(2, "/test2"));
-	processList->processLists.push_back(ST_PROCESS_INFO(3, "/test3"));
+	processList->processLists = MonitoringManager()->GetProcessLists();
 
-	std::tstring jsProcessList;
+	for (auto pInfo : processList->processLists) {
+		LoggerManager()->Info("========================================");
+		LoggerManager()->Info(StringFormatter("pid : %d", pInfo.pid));
+		LoggerManager()->Info(StringFormatter("ppid : %d", pInfo.ppid));
+		LoggerManager()->Info(StringFormatter("name : %s", pInfo.name.c_str()));
+		LoggerManager()->Info(StringFormatter("state : %s", pInfo.state.c_str()));
+		LoggerManager()->Info(StringFormatter("cmdline : %s", pInfo.cmdline.c_str()));
+		LoggerManager()->Info(StringFormatter("sTime : %s", pInfo.startTime.c_str()));
+	}
+
+	std::string jsProcessList;
 	core::WriteJsonToString(processList, jsProcessList);
 
 	MessageManager()->PushSendMessage(RESPONSE, PROCESS_LIST, jsProcessList);
+	MessageManager()->PushSendMessage(RESPONSE, PROCESS_LIST, "{\r\n\t\"ProcessLists\":[\r\n\t\t{\r\n\t\t\t\"Pid\":1,\r\n\t\t\t\"PPid\":0,\r\n\t\t\t\"Name\":\"init\",\r\n\t\t\t\"State\":\"S (sleeping)\",\r\n\t\t\t\"Cmdline\":\"\\\/init\",\r\n\t\t\t\"StartTime\":\"Fri Mar 29 15:44:35 1974\\n\"\r\n\t\t}\r\n\t]\r\n}");
 }
-void func::GetFileDescriptorList()
+
+void func::GetFileDescriptorList(std::string pid)
 {
+	sleep(0);
 	LoggerManager()->Info("Response GetFileDescriptorList");
+	
 	ST_FD_LIST* fdList = new ST_FD_LIST();
 
-	fdList->fdLists.push_back(ST_FD_INFO(1, "/test1", "/path/test1"));
-	fdList->fdLists.push_back(ST_FD_INFO(2, "/test2", "/path/test2"));
-	fdList->fdLists.push_back(ST_FD_INFO(3, "/test3", "/path/test3"));
+	fdList->fdLists = MonitoringManager()->GetFdLists(pid);
+
+	for (auto fInfo : fdList->fdLists) {
+		LoggerManager()->Info("========================================");
+		LoggerManager()->Info(StringFormatter("pid : %d", fInfo.pid));
+		LoggerManager()->Info(StringFormatter("name : %s", fInfo.name.c_str()));
+		LoggerManager()->Info(StringFormatter("path : %s", fInfo.path.c_str()));
+	}
 
 	std::tstring jsFdList;
 	core::WriteJsonToString(fdList, jsFdList);
 
 	MessageManager()->PushSendMessage(RESPONSE, FD_LIST, jsFdList);
 }
+
 void func::StartMonitoring(std::string data)
 {
 	LoggerManager()->Info("Response StartMonitoring");
-	ST_MESSAGE* message = new ST_MESSAGE();
+	//메시지를 수신
+	ST_MONITOR_LIST* monitorList = new ST_MONITOR_LIST();
+	core::ReadJsonFromString(monitorList, data);
 
-	message->opcode = MONITOR_ACTIVATE;
-	message->status = true;
-	message->data = data;
+	for (std::string path : monitorList->pathLists) 
+	{ 
+		int result = MonitoringManager()->AddMonitoringTarget(path);
+		LoggerManager()->Info(StringFormatter("[%s] : %d", path.c_str(), result));
+	}
 
-	std::tstring jsMessage;
-	core::WriteJsonToString(message, jsMessage);
+	//ST_MESSAGE* message = new ST_MESSAGE();
 
-	MessageManager()->PushSendMessage(RESPONSE, MESSAGE, jsMessage);
+	//message->opcode = MONITOR_ACTIVATE;
+	//message->status = true;
+	//message->data = data;
+
+	//std::tstring jsMessage;
+	//core::WriteJsonToString(message, jsMessage);
+
+	//MessageManager()->PushSendMessage(RESPONSE, MESSAGE, jsMessage);
 }
 void func::StopMonitoring(std::string data)
 {
 	LoggerManager()->Info("Response StopMonitoring");
-	ST_MESSAGE* message = new ST_MESSAGE();
 
-	message->opcode = MONITOR_ACTIVATE;
-	message->status = true;
-	message->data = data;
+	ST_MONITOR_LIST* monitorList = new ST_MONITOR_LIST();
+	core::ReadJsonFromString(monitorList, data);
 
-	std::tstring jsMessage;
-	core::WriteJsonToString(message, jsMessage);
+	for (std::string path : monitorList->pathLists)
+	{
+		int result = MonitoringManager()->RemoveMonitoringTarget(path);
+		LoggerManager()->Info(StringFormatter("[%s] : %d", path.c_str(), result));
+	}
+	//ST_MESSAGE* message = new ST_MESSAGE();
 
-	MessageManager()->PushSendMessage(RESPONSE, MESSAGE, jsMessage);
+	//message->opcode = MONITOR_ACTIVATE;
+	//message->status = true;
+	//message->data = data;
+
+	//std::tstring jsMessage;
+	//core::WriteJsonToString(message, jsMessage);
+
+	//MessageManager()->PushSendMessage(RESPONSE, MESSAGE, jsMessage);
 }
-void func::GetMonitoringInfo()
+void func::SendMonitoringInfo(std::string path, std::string data)
 {
 	LoggerManager()->Info("Response GetMonitoringInfo");
 	ST_MONITOR_INFO* monitorInfo = new ST_MONITOR_INFO();
 
-	monitorInfo->path = "monitoring log process";
-	monitorInfo->data = "monitoring log data";
+	monitorInfo->path = path;
+	monitorInfo->data = data;
 
 	std::tstring jsMonitorInfo;
 	core::WriteJsonToString(monitorInfo, jsMonitorInfo);

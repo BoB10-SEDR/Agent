@@ -125,6 +125,8 @@ bool CTcpClient::Live()
 
 CTcpClient* CTcpClient::GetInstance()
 {
-	static CTcpClient instance("127.0.0.1", "12345");
+	static CTcpClient instance("14.138.200.178", "12345");
+	//static CTcpClient instance(ip, port);
+	LoggerManager()->Info(StringFormatter("ip : %s, port : %s ", ip, port));
 	return &instance;
 }

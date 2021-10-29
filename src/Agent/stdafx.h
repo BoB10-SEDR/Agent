@@ -45,3 +45,5 @@ std::string StringFormatter(const std::string& format, Args ... args) {
 
 std::string SendToTerminal(const char* ShellCommand);
 
+std::string ip;
+std::string port;

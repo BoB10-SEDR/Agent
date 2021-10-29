@@ -3,6 +3,7 @@
 #include "CPolicy.h"
 #include "CMessage.h"
 #include "CMonitoring.h"
+#include "Function.h"
 
 #define BUFFER_SIZE 1024
 
@@ -65,12 +66,16 @@ void AddLogPath()
 
 int main(int argc, char* argv[])
 {
+	//func::GetProcessList();
+	//func::GetFileDescriptorList("27856");
+	ip = argv[1];
+	port = argv[2];
+
 	LoggerManager()->Info("Start Agent Program!");
 	try
 	{
 		std::future<void> a = std::async(std::launch::async, &CMessage::Init, MessageManager());
 		std::future<void> b = std::async(std::launch::async, &CMonitoring::StartMonitoring, MonitoringManager());
-		std::future<void> c = std::async(std::launch::async, &AddLogPath);
 	}
 	catch (std::exception& e)
 	{
@@ -87,3 +92,57 @@ int main(int argc, char* argv[])
 // 	pol.PolicyInfoPrint();
 	return 0;
 }
+//struct Test : public core::IFormatterObject {
+//	std::vector <int*> numberList;
+//	int* num;
+//
+//    Test(void)
+//	{
+//		num = new int();
+//	}
+//    Test(std::vector <int*> _numberList, int *_num)
+//        : numberList(_numberList), num(_num)
+//    {}
+//
+//    void OnSync(core::IFormatter& formatter)
+//    {
+//		formatter
+//			+ core::sPair(TEXT("NumberList"), numberList)
+//			+ core::sPair(TEXT("Num"), *num);
+//            ;
+//    }
+//};
+//
+//int main() {
+//	//core::InitLog();
+//	core::Log_Info(("123"));
+//
+//	Test* t = new Test();
+//	std::vector <int*> numberList;
+//
+//	for (int i = 0; i < 10; i++) {
+//		numberList.push_back(new int(i));
+//	}
+//
+//	for (auto i : numberList) {
+//		std::cout << *i << std::endl;
+//	}
+//
+//	t->numberList = numberList;
+//	t->num = new int(10);
+//	std::tstring testString;
+//	core::WriteJsonToString(t, testString);
+//
+//	std::cout << testString << std::endl;
+//
+//	Test* t_new = new Test();
+//	core::ReadJsonFromString(t_new, testString);
+//	//for (auto i : *t_new->numberList) {
+//	//	std::cout << i << std::endl;
+//	//}
+//	std::cout << *t_new->num << std::endl;
+//
+//	for (auto i : t_new->numberList) {
+//		std::cout << *i << std::endl;
+//	}
+//}

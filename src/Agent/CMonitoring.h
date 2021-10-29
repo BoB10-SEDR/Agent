@@ -39,12 +39,16 @@ private:
 	std::string GetDirectoryPath(std::string logPath);
 	std::string GetFilename(std::string logPath);
 	int FileEndPosition(std::ifstream& fileFd);
+	std::string ColumnSplit(std::string s, std::string divid);
+	std::string Trim(const std::string& s);
 public:
 	static CMonitoring* GetInstance(void);
 	int AddMonitoringTarget(std::string logPath);
 	int RemoveMonitoringTarget(std::string logPath);
 	void StartMonitoring();
 	void EndMonitoring();
+	std::vector<ST_PROCESS_INFO> GetProcessLists();
+	std::vector<ST_FD_INFO> GetFdLists(std::string pid);
 };
 
 inline CMonitoring* MonitoringManager()

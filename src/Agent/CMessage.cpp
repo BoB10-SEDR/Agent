@@ -41,6 +41,8 @@ void CMessage::SendMessage()
 
 		std::tstring jsPacketSend;
 		core::WriteJsonToString(stPacketSend, jsPacketSend);
+		LoggerManager()->Info(StringFormatter("len : %d", jsPacketSend.length()));
+		LoggerManager()->Warn(jsPacketSend);
 		ClientManager()->Send(jsPacketSend);
 	}
 }
@@ -102,7 +104,7 @@ void CMessage::MatchReceiveMessage()
 			break;
 		case FD_LIST:
 			LoggerManager()->Info(StringFormatter("Opcode : %d\tData : %s\n", stPacketSend->opcode, stPacketSend->data.c_str()));
-			result = std::async(std::launch::async, func::GetFileDescriptorList);
+			result = std::async(std::launch::async, func::GetFileDescriptorList, "834");
 			break;
 		case MONITOR_ACTIVATE:
 			LoggerManager()->Info(StringFormatter("Opcode : %d\tData : %s\n", stPacketSend->opcode, stPacketSend->data.c_str()));

@@ -4,7 +4,7 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 
-#define BUFFER_SIZE 1024
+#define BUFFER_SIZE 1024*20
 
 class CTcpClient
 {
@@ -17,7 +17,7 @@ private:
 	CTcpClient(std::string ip, std::string port);
 	~CTcpClient();
 public:
-	static CTcpClient* GetInstance(void);
+	static CTcpClient* GetInstance();
 
 	int Connect();
 	int Reconnect();

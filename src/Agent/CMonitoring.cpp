@@ -1,4 +1,5 @@
 #include "CMonitoring.h"
+#include "Function.h"
 
 CMonitoring::CMonitoring()
 {
@@ -30,6 +31,26 @@ std::string CMonitoring::GetFilename(std::string logPath)
 		return path.filename();
 	else
 		return "";
+}
+
+std::string CMonitoring::ColumnSplit(std::string s, std::string divid)
+{
+	char* c = strtok((char*)s.c_str(), divid.c_str());
+	c = strtok(NULL, divid.c_str());
+	return c;
+}
+
+std::string CMonitoring::Trim(const std::string& s)
+{
+	if (s.length() == 0)
+		return s;
+
+	std::size_t beg = s.find_first_not_of(" \a\b\f\n\r\t\v");
+	std::size_t end = s.find_last_not_of(" \a\b\f\n\r\t\v");
+	if (beg == std::string::npos) // No non-spaces
+		return "";
+
+	return std::string(s, beg, end - beg + 1);
 }
 
 int CMonitoring::FileEndPosition(std::ifstream& fileFd) {
@@ -71,7 +92,7 @@ int CMonitoring::AddMonitoringTarget(std::string logPath)
 
 	if (wd == -1)
 	{
-		wd = inotify_add_watch(fd, directoryPath.c_str(), IN_MODIFY);
+		wd = inotify_add_watch(fd, directoryPath.c_str(), IN_MODIFY | IN_MOVE);
 		if (wd == -1)
 		{
 			LoggerManager()->Error("Watcher Descriptor Error");
@@ -155,6 +176,25 @@ void CMonitoring::StartMonitoring()
 
 			if (event->len) 
 			{
+				if (event->mask & IN_MOVE)
+				{
+					if (!(event->mask & IN_ISDIR))
+					{
+						// vi, nano editor가 저장과 동시 종료시에는 수정된 내용이 반영되지만
+						// 파일을 열어놓은 상태에서 저장하고, 나중에 종료하면 연결이 끊어진다. (조치 필요)
+
+						std::string directoryPath = wdKeyPathLists[event->wd];
+						std::string fullPath = directoryPath + "/" + event->name;
+
+						ST_MONITORING_EVENT* monitoringEvent = monitoringLists.count(fullPath) ? monitoringLists[fullPath] : NULL;
+
+						if (monitoringEvent != NULL) {
+							monitoringEvent->fd.close();
+							monitoringEvent->fd = std::ifstream(monitoringEvent->orignalPath);
+						}
+					}
+				}
+
 				if (event->mask & IN_MODIFY) 
 				{
 					if (!(event->mask & IN_ISDIR)) 
@@ -175,8 +215,10 @@ void CMonitoring::StartMonitoring()
 							monitoringEvent->fd.seekg(re_size);
 							monitoringEvent->size = size;
 							monitoringEvent->fd.read(&message[0], size - re_size);
-							
+							LoggerManager()->Info(StringFormatter("File size [%d] : [%d]", re_size, size));
 							LoggerManager()->Info(StringFormatter("File Modify [%s] : %s", fullPath.c_str(), message.c_str()));
+
+							func::SendMonitoringInfo(fullPath, message);
 						}
 					}
 				}
@@ -191,6 +233,79 @@ void CMonitoring::EndMonitoring()
 {
 	LoggerManager()->Info("Monintoring Stop");
 	terminate = true;
+}
+
+std::vector<ST_PROCESS_INFO> CMonitoring::GetProcessLists()
+{
+	LoggerManager()->Info("Start GetProcessLists");
+	std::string path = "/proc";
+	std::vector<ST_PROCESS_INFO> processLists;
+
+	int i = 0;
+	for (auto& p : std::filesystem::directory_iterator(path)) {
+		if (strtol(p.path().filename().c_str(), NULL, 10) > 0) {
+			ST_PROCESS_INFO pinfo;
+			std::ifstream status(p.path().string() + "/status");
+			std::string buffer;
+
+			while (buffer.find("Name:") == std::string::npos)
+				std::getline(status, buffer);
+			pinfo.name = Trim(ColumnSplit(buffer, ":"));
+
+			while (buffer.find("State:") == std::string::npos)
+				std::getline(status, buffer);
+			pinfo.state = Trim(ColumnSplit(buffer, ":"));
+
+			while (buffer.find("Pid:") == std::string::npos)
+				std::getline(status, buffer);
+			pinfo.pid = strtol(Trim(ColumnSplit(buffer, ":")).c_str(), NULL, 10);
+
+			while (buffer.find("PPid:") == std::string::npos)
+				std::getline(status, buffer);
+			pinfo.ppid = strtol(Trim(ColumnSplit(buffer, ":")).c_str(), NULL, 10);
+
+			status.close();
+
+			std::ifstream cmdLine(p.path().string() + "/cmdline");
+			std::getline(cmdLine, buffer);
+			pinfo.cmdline = Trim(buffer);
+			cmdLine.close();
+
+			std::ifstream timeInfo(p.path().string() + "/sched");
+
+			while (buffer.find("se.exec_start") == std::string::npos)
+				std::getline(timeInfo, buffer);
+			timeInfo.close();
+
+			time_t curr_time = strtol(Trim(ColumnSplit(buffer, ":")).c_str(), NULL, 10);
+			pinfo.startTime = std::asctime(std::localtime(&curr_time));
+
+			processLists.push_back(pinfo);
+			break;
+		}
+	}
+	LoggerManager()->Info(StringFormatter("count : %d", i));
+	return processLists;
+}
+
+std::vector<ST_FD_INFO> CMonitoring::GetFdLists(std::string pid)
+{
+	LoggerManager()->Info("Start GetFdLists");
+	std::string path = "/proc/" + pid + "/fd";
+	std::vector<ST_FD_INFO> fdLists;
+
+	int i = 0;
+	for (auto& p : std::filesystem::directory_iterator(path)) {
+		ST_FD_INFO pinfo;
+
+		pinfo.pid = strtol(pid.c_str(), NULL, 10);
+		pinfo.name = p.path().string();
+		pinfo.path = std::filesystem::read_symlink(p).string();
+
+		fdLists.push_back(pinfo);
+	}
+	LoggerManager()->Info(StringFormatter("count : %d", i));
+	return fdLists;
 }
 
 CMonitoring* CMonitoring::GetInstance()
