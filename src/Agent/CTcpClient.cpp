@@ -72,7 +72,8 @@ int CTcpClient::Send(std::string message)
 	if (!Live()) {
 		Reconnect();
 	}
-	write(clientSocket, message.c_str(), message.length());
+	int result = write(clientSocket, message.c_str(), message.length());
+	LoggerManager()->Info(StringFormatter("Send Complete [%d]", result));
 	return 0;
 }
 
@@ -82,25 +83,46 @@ int CTcpClient::Recv()
 		Reconnect();
 	}
 
-	while (1)
-	{
-		char message[BUFFER_SIZE];
-		int messageLength;
+	int messageLength;
+	char message[BUFFER_SIZE + 1];
 
-		messageLength = read(clientSocket, &message, BUFFER_SIZE - 1);
-		
-		if (messageLength <= 0)    // close request!
+	while (1) {
+		messageLength = read(clientSocket, &message, BUFFER_SIZE);
+		LoggerManager()->Info(StringFormatter("Read Complete [%d]", messageLength));
+
+		if (messageLength == 0)
 		{
 			CTcpClient::Disconnet();
 			break;
 		}
+		else if (messageLength < 0)
+		{
+			LoggerManager()->Error(StringFormatter("Error Code [%d]", errno));
+			LoggerManager()->Error(message);
+			break;
+		}
+		else
+		{
+			message[messageLength] = 0;
+			MessageBuffers += message;
 
-		LoggerManager()->Info(StringFormatter("Message Receive [%d] .........", messageLength));
-		message[messageLength] = 0;
+			while (1)
+			{
+				size_t location = MessageBuffers.find("END");
+				printf("find End : %d\n", location);
 
-		ST_PACKET_INFO* stPacketRead = new ST_PACKET_INFO();
-		core::ReadJsonFromString(stPacketRead, message);
-		MessageManager()->PushReceiveMessage(stPacketRead);
+				if (location == -1)
+					break;
+
+				LoggerManager()->Info(StringFormatter("\nMessage Length : %d", messageLength));
+				ST_PACKET_INFO* stPacketRead = new ST_PACKET_INFO();
+				core::ReadJsonFromString(stPacketRead, MessageBuffers.substr(0, location));
+
+				MessageManager()->PushReceiveMessage(stPacketRead);
+				MessageBuffers = MessageBuffers.substr(location + 3);
+			}
+		}
+		message[0] = 0;
 	}
 	return 0;
 }
@@ -125,8 +147,6 @@ bool CTcpClient::Live()
 
 CTcpClient* CTcpClient::GetInstance()
 {
-	static CTcpClient instance("14.138.200.178", "12345");
-	//static CTcpClient instance(ip, port);
-	LoggerManager()->Info(StringFormatter("ip : %s, port : %s ", ip, port));
+	static CTcpClient instance("14.138.200.178", "55555");
 	return &instance;
 }

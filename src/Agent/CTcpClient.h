@@ -4,13 +4,14 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 
-#define BUFFER_SIZE 1024*20
+#define BUFFER_SIZE 4096
 
 class CTcpClient
 {
 private:
 	int clientSocket;
 	int connectStatus;
+	std::string MessageBuffers;
 	struct sockaddr_in serverAddress;
 
 	CTcpClient();
