@@ -71,11 +71,13 @@ int CMonitoring::AddMonitoringTarget(std::string logPath)
 	sleep(0);
 	std::lock_guard<std::mutex> lock_guard(monitoringMutex);
 
+	//파일 존재여부 확인 필요
 	std::string originalPath = std::filesystem::canonical(logPath);
 
 	std::string directoryPath = GetDirectoryPath(originalPath);
 	std::string fileName = GetFilename(originalPath);
 	
+	LoggerManager()->Info("AddMonitoringTarget-1");
 	if (directoryPath == "" || fileName == "") 
 	{
 		LoggerManager()->Warn(StringFormatter("Path is not exists : %s", originalPath.c_str()));
@@ -114,7 +116,8 @@ int CMonitoring::AddMonitoringTarget(std::string logPath)
 
 		monitoringLists.insert(std::pair<std::string, struct ST_MONITORING_EVENT*>(originalPath, monitoringEvent));
 	}
-
+	
+	LoggerManager()->Info("End AddMonitoringTarget");
 	return 0;
 }
 int CMonitoring::RemoveMonitoringTarget(std::string logPath)
@@ -268,7 +271,7 @@ std::vector<ST_PROCESS_INFO> CMonitoring::GetProcessLists()
 
 			std::ifstream cmdLine(p.path().string() + "/cmdline");
 			std::getline(cmdLine, buffer);
-			pinfo.cmdline = Trim(buffer);
+			pinfo.cmdline = Trim(buffer).c_str();
 			cmdLine.close();
 
 			std::ifstream timeInfo(p.path().string() + "/sched");
@@ -280,8 +283,8 @@ std::vector<ST_PROCESS_INFO> CMonitoring::GetProcessLists()
 			time_t curr_time = strtol(Trim(ColumnSplit(buffer, ":")).c_str(), NULL, 10);
 			pinfo.startTime = std::asctime(std::localtime(&curr_time));
 
+			i++;
 			processLists.push_back(pinfo);
-			break;
 		}
 	}
 	LoggerManager()->Info(StringFormatter("count : %d", i));
@@ -297,7 +300,6 @@ std::vector<ST_FD_INFO> CMonitoring::GetFdLists(std::string pid)
 	int i = 0;
 	for (auto& p : std::filesystem::directory_iterator(path)) {
 		ST_FD_INFO pinfo;
-
 		pinfo.pid = strtol(pid.c_str(), NULL, 10);
 		pinfo.name = p.path().string();
 		pinfo.path = std::filesystem::read_symlink(p).string();

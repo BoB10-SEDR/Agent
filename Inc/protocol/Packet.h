@@ -129,23 +129,25 @@ struct ST_FD_INFO : public core::IFormatterObject
 
 struct ST_FD_LIST : public core::IFormatterObject
 {
+    int pid;
     std::vector<ST_FD_INFO> fdLists;
 
     ST_FD_LIST(void)
     {}
-    ST_FD_LIST(std::vector<ST_FD_INFO> _fdLists)
-        : fdLists(_fdLists)
+    ST_FD_LIST(int _pid,  std::vector<ST_FD_INFO> _fdLists)
+        : pid(_pid), fdLists(_fdLists)
     {}
 
     void OnSync(core::IFormatter& formatter)
     {
         formatter
+            + core::sPair(TEXT("Pid"), pid)
             + core::sPair(TEXT("FdLists"), fdLists)
             ;
     }
 };
 
-struct ST_MONITOR_LIST: public core::IFormatterObject
+struct ST_MONITOR_LIST : public core::IFormatterObject
 {
     std::vector <std::string> pathLists;
 
@@ -214,7 +216,7 @@ struct ST_DEVICE_INFO : public core::IFormatterObject
 };
 
 struct ST_MODULE_INFO : public core::IFormatterObject
-{    
+{
     std::string deviceSerialNumber;
     std::string deviceMac;
     std::string name;

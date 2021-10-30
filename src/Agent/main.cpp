@@ -68,8 +68,6 @@ int main(int argc, char* argv[])
 {
 	//func::GetProcessList();
 	//func::GetFileDescriptorList("27856");
-	ip = argv[1];
-	port = argv[2];
 
 	LoggerManager()->Info("Start Agent Program!");
 	try
