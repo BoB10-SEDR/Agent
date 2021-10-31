@@ -36,24 +36,19 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CDevice.cpp" />
-    <ClCompile Include="CLogger.cpp" />
     <ClCompile Include="CMessage.cpp" />
     <ClCompile Include="CMonitoring.cpp" />
     <ClCompile Include="CPolicy.cpp" />
-    <ClCompile Include="CSample.cpp" />
     <ClCompile Include="CTcpClient.cpp" />
     <ClCompile Include="Function.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CDevice.h" />
-    <ClInclude Include="CLogger.h" />
     <ClInclude Include="CMessage.h" />
     <ClInclude Include="CMonitoring.h" />
     <ClInclude Include="CPolicy.h" />
-    <ClInclude Include="CSample.h" />
     <ClInclude Include="CTcpClient.h" />
-    <ClInclude Include="CTcpClientException.h" />
     <ClInclude Include="Function.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
@@ -173,6 +168,7 @@
     <ClCompile>
       <AdditionalIncludeDirectories>%(ClCompile.AdditionalIncludeDirectories);$(SolutionDir)../Inc;$(RemoteRootDir)/../BoB10_SEDR/$(ProjectName)/Inc</AdditionalIncludeDirectories>
       <CppLanguageStandard>c++17</CppLanguageStandard>
+      <PreprocessorDefinitions>DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <LibraryDependencies>cppcore;protocol;dl;pthread;pcap</LibraryDependencies>
@@ -191,6 +187,7 @@
     <ClCompile>
       <AdditionalIncludeDirectories>%(ClCompile.AdditionalIncludeDirectories);$(SolutionDir)../Inc;$(RemoteRootDir)/../BoB10_SEDR/$(ProjectName)/Inc</AdditionalIncludeDirectories>
       <CppLanguageStandard>c++17</CppLanguageStandard>
+      <PreprocessorDefinitions>DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <LibraryDependencies>cppcore;protocol;dl;pthread;pcap</LibraryDependencies>
@@ -209,6 +206,7 @@
     <ClCompile>
       <AdditionalIncludeDirectories>%(ClCompile.AdditionalIncludeDirectories);$(SolutionDir)../Inc;$(RemoteRootDir)/../BoB10_SEDR/$(ProjectName)/Inc</AdditionalIncludeDirectories>
       <CppLanguageStandard>c++17</CppLanguageStandard>
+      <PreprocessorDefinitions>DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <LibraryDependencies>cppcore;protocol;dl;pthread;pcap</LibraryDependencies>
@@ -227,6 +225,7 @@
     <ClCompile>
       <AdditionalIncludeDirectories>%(ClCompile.AdditionalIncludeDirectories);$(SolutionDir)../Inc;$(RemoteRootDir)/../BoB10_SEDR/$(ProjectName)/Inc</AdditionalIncludeDirectories>
       <CppLanguageStandard>c++17</CppLanguageStandard>
+      <PreprocessorDefinitions>DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <LibraryDependencies>cppcore;protocol;dl;pthread;pcap</LibraryDependencies>

@@ -3,84 +3,95 @@
 
 CMonitoring::CMonitoring()
 {
-	LoggerManager()->Info("Monintoring Init");
+	core::Log_Debug(TEXT("CMonitoring.cpp - [%s]"), TEXT("Init"));
+
 	fd = inotify_init();
+
+	if (fd == -1)
+		core::Log_Warn(TEXT("CMonitoring.cpp - [%s] : %d"), TEXT("Inotify Init Error"), errno);
+
 	terminate = false;
 }
 CMonitoring::~CMonitoring()
 {
-	LoggerManager()->Info("Monintoring End");
+	core::Log_Debug(TEXT("CMonitoring.cpp - [%s]"), TEXT("End"));
+
 	(void)close(fd);
 }
 
-std::string CMonitoring::GetDirectoryPath(std::string logPath)
+std::tstring CMonitoring::GetDirectoryPath(std::tstring logPath)
 {
 	std::filesystem::path path(logPath);
 
 	if (std::filesystem::exists(path.parent_path()))
 		return path.parent_path();
 	else
+	{
+		core::Log_Warn(TEXT("CMonitoring.cpp - [%s] : %s"), TEXT("Directory Path Not Exists"), TEXT(path.parent_path().c_str()));
 		return "";
+	}
 }
 
-std::string CMonitoring::GetFilename(std::string logPath)
+std::tstring CMonitoring::GetFilename(std::tstring logPath)
 {
 	std::filesystem::path path(logPath);
 
 	if (std::filesystem::exists(path))
 		return path.filename();
 	else
+	{
+		core::Log_Warn(TEXT("CMonitoring.cpp - [%s] : %s"), TEXT("File Not Exists"), TEXT(path.filename().c_str()));
 		return "";
+	}
 }
 
-std::string CMonitoring::ColumnSplit(std::string s, std::string divid)
+std::tstring CMonitoring::ColumnSplit(std::tstring s, std::tstring divid)
 {
 	char* c = strtok((char*)s.c_str(), divid.c_str());
 	c = strtok(NULL, divid.c_str());
 	return c;
 }
 
-std::string CMonitoring::Trim(const std::string& s)
+std::tstring CMonitoring::Trim(const std::tstring& s)
 {
 	if (s.length() == 0)
 		return s;
 
 	std::size_t beg = s.find_first_not_of(" \a\b\f\n\r\t\v");
 	std::size_t end = s.find_last_not_of(" \a\b\f\n\r\t\v");
-	if (beg == std::string::npos) // No non-spaces
+	if (beg == std::tstring::npos)
 		return "";
 
-	return std::string(s, beg, end - beg + 1);
+	return std::tstring(s, beg, end - beg + 1);
 }
 
-int CMonitoring::FileEndPosition(std::ifstream& fileFd) {
+int CMonitoring::FindFileEndPosition(std::ifstream& fileFd) {
 	if (fileFd.is_open()) {
 		fileFd.seekg(0, std::ios::end);
 		int size = fileFd.tellg();
 		return size;
 	}
 	else {
-		LoggerManager()->Warn("File Not Open");
+		core::Log_Warn(TEXT("CMonitoring.cpp - [%s]"), TEXT("File Open Fail"));
 		return -1;
 	}
 }
 
-int CMonitoring::AddMonitoringTarget(std::string logPath)
+int CMonitoring::AddMonitoringTarget(ST_MONITOR_TARGET target)
 {
-	LoggerManager()->Info("AddMonitoringTarget");
+	core::Log_Debug(TEXT("CMonitoring.cpp - [%s] : %s"), TEXT("MonitoringTarget Add Start"), TEXT(target.logPath.c_str()));
+
 	sleep(0);
 	std::lock_guard<std::mutex> lock_guard(monitoringMutex);
 
-	//파일 존재여부 확인 필요
-	std::string originalPath = std::filesystem::canonical(logPath);
+	std::tstring originalPath = std::filesystem::canonical(target.logPath);
 
-	std::string directoryPath = GetDirectoryPath(originalPath);
-	std::string fileName = GetFilename(originalPath);
+	std::tstring directoryPath = GetDirectoryPath(originalPath);
+	std::tstring fileName = GetFilename(originalPath);
 	
-	LoggerManager()->Info("AddMonitoringTarget-1");
 	if (directoryPath == "" || fileName == "") 
 	{
-		LoggerManager()->Warn(StringFormatter("Path is not exists : %s", originalPath.c_str()));
+		core::Log_Warn(TEXT("CMonitoring.cpp - [%s] : %s"), TEXT("Path Not Valid."), TEXT(originalPath.c_str()));
 		return -1;
 	}
 
@@ -89,6 +100,7 @@ int CMonitoring::AddMonitoringTarget(std::string logPath)
 
 	if (wd != -1 && monitoringEvent == NULL)
 	{
+		core::Log_Debug(TEXT("CMonitoring.cpp - [%s] : %s"), TEXT("Directory Path Already Being Watched."), TEXT(directoryPath.c_str()));
 		wdCountLists[directoryPath]++;
 	}
 
@@ -97,43 +109,45 @@ int CMonitoring::AddMonitoringTarget(std::string logPath)
 		wd = inotify_add_watch(fd, directoryPath.c_str(), IN_MODIFY | IN_MOVE);
 		if (wd == -1)
 		{
-			LoggerManager()->Error("Watcher Descriptor Error");
+			core::Log_Warn(TEXT("CMonitoring.cpp - [%s] : %d"), TEXT("Watching Add/Update Error Code"), errno);
 			return -1;
 		}
-		wdCountLists.insert(std::pair<std::string, int>(directoryPath, 1));
-		wdKeyPathLists.insert(std::pair<int, std::string>(wd, directoryPath));
+		wdCountLists.insert(std::pair<std::tstring, int>(TEXT(directoryPath), 1));
+		wdKeyPathLists.insert(std::pair<int, std::tstring>(wd, TEXT(directoryPath)));
+		core::Log_Debug(TEXT("CMonitoring.cpp - [%s] : %s"), TEXT("Directory Path Start New Watch."), TEXT(directoryPath.c_str()));
 	}
 
 	if (monitoringEvent == NULL)
 	{
 		ST_MONITORING_EVENT* monitoringEvent = new ST_MONITORING_EVENT();
+		monitoringEvent->processName = target.processName;
 		monitoringEvent->orignalPath = originalPath;
 		monitoringEvent->directoryPath = directoryPath;
 		monitoringEvent->fileName = fileName;
 		monitoringEvent->fd = std::ifstream(originalPath);
 		monitoringEvent->wd = wd;
-		monitoringEvent->size = FileEndPosition(monitoringEvent->fd);
+		monitoringEvent->size = FindFileEndPosition(monitoringEvent->fd);
 
-		monitoringLists.insert(std::pair<std::string, struct ST_MONITORING_EVENT*>(originalPath, monitoringEvent));
+		monitoringLists.insert(std::pair<std::tstring, struct ST_MONITORING_EVENT*>(TEXT(originalPath), monitoringEvent));
 	}
 	
-	LoggerManager()->Info("End AddMonitoringTarget");
+	core::Log_Info(TEXT("CMonitoring.cpp - [%s] : %s"), TEXT("MonitoringTarget Add Complete"), TEXT(target.logPath.c_str()));
 	return 0;
 }
-int CMonitoring::RemoveMonitoringTarget(std::string logPath)
+int CMonitoring::RemoveMonitoringTarget(ST_MONITOR_TARGET target)
 {
-	LoggerManager()->Info("RemoveMonitoringTarget");
+	core::Log_Debug(TEXT("CMonitoring.cpp - [%s] : %s"), TEXT("MonitoringTarget Remove Start"), TEXT(target.logPath.c_str()));
 	sleep(0);
 	std::lock_guard<std::mutex> lock_guard(monitoringMutex);
 
-	std::string originalPath = std::filesystem::canonical(logPath);
+	std::tstring originalPath = std::filesystem::canonical(target.logPath);
 
-	std::string directoryPath = GetDirectoryPath(originalPath);
-	std::string fileName = GetFilename(originalPath);
+	std::tstring directoryPath = GetDirectoryPath(originalPath);
+	std::tstring fileName = GetFilename(originalPath);
 
 	if (directoryPath == "" || fileName == "")
 	{
-		LoggerManager()->Warn(StringFormatter("Path is not exists : %s", originalPath.c_str()));
+		core::Log_Warn(TEXT("CMonitoring.cpp - [%s] : %s"), TEXT("Path Not Valid."), TEXT(originalPath.c_str()));
 		return -1;
 	}
 
@@ -144,10 +158,21 @@ int CMonitoring::RemoveMonitoringTarget(std::string logPath)
 		monitoringEvent->fd.close();
 
 		if (wdCountLists[monitoringEvent->directoryPath] > 1)
+		{
+			core::Log_Debug(TEXT("CMonitoring.cpp - [%s] : %s"), TEXT("Remove Target From The List."), TEXT(originalPath.c_str()));
 			wdCountLists[monitoringEvent->directoryPath]--;
+		}
 		else if (wdCountLists[monitoringEvent->directoryPath] == 1)
 		{
-			(void)inotify_rm_watch(fd, monitoringEvent->wd);
+			core::Log_Debug(TEXT("CMonitoring.cpp - [%s] : %s"), TEXT("Stop Directory Path Monitoring"), TEXT(monitoringEvent->directoryPath.c_str()));
+			int result = inotify_rm_watch(fd, monitoringEvent->wd);
+			
+			if (result == -1)
+			{
+				core::Log_Warn(TEXT("CMonitoring.cpp - [%s] : %d"), TEXT("Watching Remove Error Code"), errno);
+				return -1;
+			}
+
 			wdCountLists.erase(monitoringEvent->directoryPath);
 			wdKeyPathLists.erase(monitoringEvent->wd);
 		}
@@ -155,13 +180,19 @@ int CMonitoring::RemoveMonitoringTarget(std::string logPath)
 		free(monitoringEvent);
 		monitoringLists.erase(originalPath);
 	}
+	else
+	{
+		core::Log_Warn(TEXT("CMonitoring.cpp - [%s] : %s"), TEXT("Target Does Not Exist In The List"), TEXT(originalPath.c_str()));
+		return -1;
+	}
 
+	core::Log_Debug(TEXT("CMonitoring.cpp - [%s] : %s"), TEXT("MonitoringTarget Remove Complete"), TEXT(target.logPath.c_str()));
 	return 0;
 }
 
 void CMonitoring::StartMonitoring()
 {
-	LoggerManager()->Info("Monintoring Start");
+	core::Log_Debug(TEXT("CMonitoring.cpp - [%s]"), TEXT("Working Monitoring In Thread"));
 
 	char buffer[BUF_LEN];
 	while (!terminate) {
@@ -171,7 +202,7 @@ void CMonitoring::StartMonitoring()
 		int i = 0;
 
 		if (length < 0) {
-			LoggerManager()->Warn("Monitoring Error!");
+			core::Log_Warn(TEXT("CMonitoring.cpp - [%s]"), TEXT("Monitoring Error"));
 		}
 
 		while (i < length) {
@@ -186,12 +217,13 @@ void CMonitoring::StartMonitoring()
 						// vi, nano editor가 저장과 동시 종료시에는 수정된 내용이 반영되지만
 						// 파일을 열어놓은 상태에서 저장하고, 나중에 종료하면 연결이 끊어진다. (조치 필요)
 
-						std::string directoryPath = wdKeyPathLists[event->wd];
-						std::string fullPath = directoryPath + "/" + event->name;
+						std::tstring directoryPath = TEXT(wdKeyPathLists[event->wd]);
+						std::tstring fullPath = TEXT(directoryPath) + TEXT("/") + TEXT(event->name);
 
 						ST_MONITORING_EVENT* monitoringEvent = monitoringLists.count(fullPath) ? monitoringLists[fullPath] : NULL;
 
 						if (monitoringEvent != NULL) {
+							core::Log_Debug(TEXT("CMonitoring.cpp - [%s] : %s"), TEXT("File Descriptor Update"), TEXT(fullPath.c_str()));
 							monitoringEvent->fd.close();
 							monitoringEvent->fd = std::ifstream(monitoringEvent->orignalPath);
 						}
@@ -202,9 +234,9 @@ void CMonitoring::StartMonitoring()
 				{
 					if (!(event->mask & IN_ISDIR)) 
 					{
-						std::string directoryPath = wdKeyPathLists[event->wd];
-						std::string fullPath = directoryPath + "/" + event->name;
-						std::string message;
+						std::tstring directoryPath = TEXT(wdKeyPathLists[event->wd]);
+						std::tstring fullPath = TEXT(directoryPath) + TEXT("/") + TEXT(event->name);
+						std::tstring message;
 
 						ST_MONITORING_EVENT* monitoringEvent = monitoringLists.count(fullPath) ? monitoringLists[fullPath] : NULL;
 
@@ -218,10 +250,10 @@ void CMonitoring::StartMonitoring()
 							monitoringEvent->fd.seekg(re_size);
 							monitoringEvent->size = size;
 							monitoringEvent->fd.read(&message[0], size - re_size);
-							LoggerManager()->Info(StringFormatter("File size [%d] : [%d]", re_size, size));
-							LoggerManager()->Info(StringFormatter("File Modify [%s] : %s", fullPath.c_str(), message.c_str()));
+							core::Log_Debug(TEXT("CMonitoring.cpp - [%s] : %s, %d -> %d"), TEXT("File Size"), TEXT(fullPath.c_str()), re_size, size);
+							core::Log_Debug(TEXT("CMonitoring.cpp - [%s] : %s, %s"), TEXT("FileModify Content"), TEXT(fullPath.c_str()), TEXT(message.c_str()));
 
-							func::SendMonitoringInfo(fullPath, message);
+							func::CollectMonitoringLog(monitoringEvent->processName, fullPath, message);
 						}
 					}
 				}
@@ -234,14 +266,15 @@ void CMonitoring::StartMonitoring()
 
 void CMonitoring::EndMonitoring()
 {
-	LoggerManager()->Info("Monintoring Stop");
+	core::Log_Debug(TEXT("CMonitoring.cpp - [%s]"), TEXT("Termiate Monitoring In Thread"));
 	terminate = true;
 }
 
 std::vector<ST_PROCESS_INFO> CMonitoring::GetProcessLists()
 {
-	LoggerManager()->Info("Start GetProcessLists");
-	std::string path = "/proc";
+	core::Log_Debug(TEXT("CMonitoring.cpp - [%s]"), TEXT("Get ProcessList Start"));
+
+	std::tstring path = TEXT("/proc");
 	std::vector<ST_PROCESS_INFO> processLists;
 
 	int i = 0;
@@ -249,21 +282,21 @@ std::vector<ST_PROCESS_INFO> CMonitoring::GetProcessLists()
 		if (strtol(p.path().filename().c_str(), NULL, 10) > 0) {
 			ST_PROCESS_INFO pinfo;
 			std::ifstream status(p.path().string() + "/status");
-			std::string buffer;
+			std::tstring buffer;
 
-			while (buffer.find("Name:") == std::string::npos)
+			while (buffer.find("Name:") == std::tstring::npos)
 				std::getline(status, buffer);
 			pinfo.name = Trim(ColumnSplit(buffer, ":"));
 
-			while (buffer.find("State:") == std::string::npos)
+			while (buffer.find("State:") == std::tstring::npos)
 				std::getline(status, buffer);
 			pinfo.state = Trim(ColumnSplit(buffer, ":"));
 
-			while (buffer.find("Pid:") == std::string::npos)
+			while (buffer.find("Pid:") == std::tstring::npos)
 				std::getline(status, buffer);
 			pinfo.pid = strtol(Trim(ColumnSplit(buffer, ":")).c_str(), NULL, 10);
 
-			while (buffer.find("PPid:") == std::string::npos)
+			while (buffer.find("PPid:") == std::tstring::npos)
 				std::getline(status, buffer);
 			pinfo.ppid = strtol(Trim(ColumnSplit(buffer, ":")).c_str(), NULL, 10);
 
@@ -276,7 +309,7 @@ std::vector<ST_PROCESS_INFO> CMonitoring::GetProcessLists()
 
 			std::ifstream timeInfo(p.path().string() + "/sched");
 
-			while (buffer.find("se.exec_start") == std::string::npos)
+			while (buffer.find("se.exec_start") == std::tstring::npos)
 				std::getline(timeInfo, buffer);
 			timeInfo.close();
 
@@ -287,26 +320,33 @@ std::vector<ST_PROCESS_INFO> CMonitoring::GetProcessLists()
 			processLists.push_back(pinfo);
 		}
 	}
-	LoggerManager()->Info(StringFormatter("count : %d", i));
+	core::Log_Debug(TEXT("CMonitoring.cpp - [%s] : %d"), TEXT("Get ProcessList End"), i);
 	return processLists;
 }
 
-std::vector<ST_FD_INFO> CMonitoring::GetFdLists(std::string pid)
+std::vector<ST_FD_INFO> CMonitoring::GetFdLists(std::tstring pid)
 {
-	LoggerManager()->Info("Start GetFdLists");
-	std::string path = "/proc/" + pid + "/fd";
+	core::Log_Debug(TEXT("CMonitoring.cpp - [%s]"), TEXT("Get ProcessFileDescriptorList Start"));
+
+	std::tstring path = TEXT("/proc/") + TEXT(pid) + TEXT("/fd");
 	std::vector<ST_FD_INFO> fdLists;
+
+	if (!std::filesystem::exists(path)) {
+		core::Log_Warn(TEXT("CMonitoring.cpp - [%s] : %s"), TEXT("Process Is Not Valid."), TEXT(path.c_str()));
+		return fdLists;
+	}
 
 	int i = 0;
 	for (auto& p : std::filesystem::directory_iterator(path)) {
 		ST_FD_INFO pinfo;
 		pinfo.pid = strtol(pid.c_str(), NULL, 10);
-		pinfo.name = p.path().string();
-		pinfo.path = std::filesystem::read_symlink(p).string();
+		pinfo.fdName = p.path().string();
+		pinfo.realPath = std::filesystem::read_symlink(p).string();
 
 		fdLists.push_back(pinfo);
+		i++;
 	}
-	LoggerManager()->Info(StringFormatter("count : %d", i));
+	core::Log_Debug(TEXT("CMonitoring.cpp - [%s] : %d"), TEXT("Get ProcessFileDescriptorList Start"), i);
 	return fdLists;
 }
 

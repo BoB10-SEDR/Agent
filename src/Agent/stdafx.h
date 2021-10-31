@@ -5,8 +5,14 @@
 #include <memory>
 #include <string>
 #include <string.h>
+#include <mutex>
 
-#include "CLogger.h"
+struct ST_ENV
+{
+	std::tstring ip;
+	std::tstring port;
+	std::tstring loggerName;
+};
 
 template<typename ... Args>
 std::string StringFormatter(const std::string& format, Args ... args) {

@@ -7,6 +7,8 @@
 
 #define BUFFER_SIZE 1024
 
+ST_ENV env;
+
 std::string SendToTerminal(const char* ShellCommand)
 {
 	std::ostringstream	ShellCommandTemp;
@@ -36,40 +38,46 @@ std::string SendToTerminal(const char* ShellCommand)
 
 	return RecievedData;
 }
-void AddLogPath()
+
+void SetLogger(std::string name, DWORD inputOption)
 {
-	while (true)
-	{
-		sleep(0);
-		char agentInfo[BUFFER_SIZE];
-		int select;
-		printf("Path : ");
-		fgets(agentInfo, BUFFER_SIZE, stdin);
-		*(agentInfo + (strlen(agentInfo) - 1)) = 0;
+	std::tstring strModuleFile = core::GetFileName();
+	std::tstring strModuleDir = core::ExtractDirectory(strModuleFile);
+	std::tstring strModuleName = core::ExtractFileNameWithoutExt(strModuleFile);
+	std::tstring strLogFile = strModuleDir + TEXT("/") + strModuleName + TEXT(".log");
 
-		printf("Opcode : ");
-		scanf("%d", &select);
-		printf("opcode : %d\n", select);
-
-		while (getchar() != '\n');
-
-		if (select == 1)
-		{
-			std::cout << MonitoringManager()->AddMonitoringTarget(agentInfo) << std::endl;
-		}
-		else
-		{
-			std::cout << MonitoringManager()->RemoveMonitoringTarget(agentInfo) << std::endl;
-		}
-	}
+	core::ST_LOG_INIT_PARAM_EX init;
+	init.strLogFile = strLogFile;
+	init.strID = TEXT(name);
+	init.dwInputFlag = inputOption;
+	init.dwOutputFlag = core::LOG_OUTPUT_FILE | core::LOG_OUTPUT_CONSOLE | core::LOG_OUTPUT_DBGWND;
+	init.dwMaxFileSize = 10 * 1000 * 1000;
+	init.dwMaxFileCount = 10;
+	init.nLogRotation = core::LOG_ROTATION_SIZE;
+	core::InitLog(init);
 }
 
 int main(int argc, char* argv[])
 {
-	//func::GetProcessList();
-	//func::GetFileDescriptorList("27856");
+	if (argc != 4) {
+		printf("syntax : ./agent.out <server ip> <server port> <logger name>\n");
+		printf("sample : ./agent.out 192.168.10.1 5000 logger-test\n");
+		return -1;
+	}
 
-	LoggerManager()->Info("Start Agent Program!");
+	env.ip = argv[1];
+	env.port = argv[2];
+	env.loggerName = argv[3];
+
+#ifdef DEBUG
+	SetLogger(env.loggerName, core::LOG_INFO | core::LOG_WARN | core::LOG_ERROR | core::LOG_DEBUG);
+	core::Log_Info(TEXT("main.cpp - [%s]"), TEXT("Program is Debug Mode"));
+#else
+	SetLogger(env.loggerName, core::LOG_INFO | core::LOG_WARN | core::LOG_ERROR);
+	core::Log_Info(TEXT("main.cpp - [%s]"), TEXT("Program is Release Mode"));
+#endif
+
+	core::Log_Info(TEXT("main.cpp - [%s]"), TEXT("Start Agent Program!"));
 	try
 	{
 		std::future<void> a = std::async(std::launch::async, &CMessage::Init, MessageManager());
@@ -77,70 +85,10 @@ int main(int argc, char* argv[])
 	}
 	catch (std::exception& e)
 	{
-		LoggerManager()->Error(e.what());
+		core::Log_Error(TEXT("main.cpp - [%s]"), TEXT(e.what()));
 	}
-	LoggerManager()->Info("Terminate Agent Program!");
 
-// 	CDevice dev = CDevice();
-// 	dev.DeviceInit();
-// 	dev.DeviceInfoPrint();
+	core::Log_Info(TEXT("main.cpp - [%s]"), TEXT("Terminate Agent Program!"));
 
-// 	CPolicy pol = CPolicy();
-// 	pol.getPolicyInfo();
-// 	pol.PolicyInfoPrint();
 	return 0;
 }
-//struct Test : public core::IFormatterObject {
-//	std::vector <int*> numberList;
-//	int* num;
-//
-//    Test(void)
-//	{
-//		num = new int();
-//	}
-//    Test(std::vector <int*> _numberList, int *_num)
-//        : numberList(_numberList), num(_num)
-//    {}
-//
-//    void OnSync(core::IFormatter& formatter)
-//    {
-//		formatter
-//			+ core::sPair(TEXT("NumberList"), numberList)
-//			+ core::sPair(TEXT("Num"), *num);
-//            ;
-//    }
-//};
-//
-//int main() {
-//	//core::InitLog();
-//	core::Log_Info(("123"));
-//
-//	Test* t = new Test();
-//	std::vector <int*> numberList;
-//
-//	for (int i = 0; i < 10; i++) {
-//		numberList.push_back(new int(i));
-//	}
-//
-//	for (auto i : numberList) {
-//		std::cout << *i << std::endl;
-//	}
-//
-//	t->numberList = numberList;
-//	t->num = new int(10);
-//	std::tstring testString;
-//	core::WriteJsonToString(t, testString);
-//
-//	std::cout << testString << std::endl;
-//
-//	Test* t_new = new Test();
-//	core::ReadJsonFromString(t_new, testString);
-//	//for (auto i : *t_new->numberList) {
-//	//	std::cout << i << std::endl;
-//	//}
-//	std::cout << *t_new->num << std::endl;
-//
-//	for (auto i : t_new->numberList) {
-//		std::cout << *i << std::endl;
-//	}
-//}
