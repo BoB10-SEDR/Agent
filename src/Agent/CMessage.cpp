@@ -41,7 +41,7 @@ void CMessage::SendMessage()
 
 		std::tstring jsPacketSend;
 		core::WriteJsonToString(stPacketSend, jsPacketSend);
-		ClientManager()->Send(jsPacketSend+TEXT("END"));
+		ClientManager()->Send(TEXT("BOBSTART") + jsPacketSend + TEXT("BOBEND"));
 		free(stPacketSend);
 		core::Log_Debug(TEXT("CMessage.cpp - [%s] : %s"), TEXT("Send Message"), TEXT(jsPacketSend.c_str()));
 	}

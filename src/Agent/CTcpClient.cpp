@@ -94,17 +94,18 @@ int CTcpClient::Recv()
 
 			while (1)
 			{
-				size_t location = messageBuffers.find("END");
-				core::Log_Debug(TEXT("CTcpClient.cpp - [%s] : %d"), TEXT("Find End Position"), location);
+				size_t start_location = messageBuffers.find("BOBSTART");
+				size_t end_location = messageBuffers.find("BOBEND");
+				core::Log_Debug(TEXT("CTcpClient.cpp - [%s] : %d, %d"), TEXT("Find Position(Start, End)"), start_location, end_location);
 
-				if (location == -1)
+				if (start_location == -1 || end_location == -1)
 					break;
 
 				ST_PACKET_INFO* stPacketRead = new ST_PACKET_INFO();
-				core::ReadJsonFromString(stPacketRead, messageBuffers.substr(0, location));
+				core::ReadJsonFromString(stPacketRead, messageBuffers.substr(start_location + 8, end_location - (start_location + 8)));
 
 				MessageManager()->PushReceiveMessage(stPacketRead);
-				messageBuffers = messageBuffers.substr(location + 3);
+				messageBuffers = messageBuffers.substr(start_location + 6);
 			}
 		}
 		memset(message, 0, sizeof(message));

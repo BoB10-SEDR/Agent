@@ -340,8 +340,8 @@ std::vector<ST_FD_INFO> CMonitoring::GetFdLists(std::tstring pid)
 	for (auto& p : std::filesystem::directory_iterator(path)) {
 		ST_FD_INFO pinfo;
 		pinfo.pid = strtol(pid.c_str(), NULL, 10);
-		pinfo.fdName = p.path().string();
-		pinfo.realPath = std::filesystem::read_symlink(p).string();
+		pinfo.fdName = p.path().string().c_str();
+		pinfo.realPath = std::filesystem::read_symlink(p).string().c_str();
 
 		fdLists.push_back(pinfo);
 		i++;
