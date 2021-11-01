@@ -1,5 +1,6 @@
 #include "CTcpClient.h"
 #include "CMessage.h"
+#include "Function.h"
 
 extern ST_ENV env;
 
@@ -40,8 +41,10 @@ void CTcpClient::Connect()
 
 	if (connectStatus == -1)
 		core::Log_Warn(TEXT("CTcpClient.cpp - [%s] : %s"), TEXT("Server Connected Fail"), TEXT(inet_ntoa(serverAddress.sin_addr)));
-	else
+	else {
 		core::Log_Info(TEXT("CTcpClient.cpp - [%s] : %s"), TEXT("Server Connected"), TEXT(inet_ntoa(serverAddress.sin_addr)));
+		func::GetDeviceInfo();
+	}
 }
 
 int CTcpClient::Send(std::string message)
