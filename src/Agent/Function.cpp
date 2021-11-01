@@ -66,6 +66,7 @@ void func::StartMonitoring(std::tstring data)
 
 		ST_MONITOR_RESULT monitorResult;
 
+		monitorResult.processName = target.processName;
 		monitorResult.logPath = target.logPath;
 		monitorResult.result = result == 0 ? true : false;
 
@@ -91,8 +92,9 @@ void func::StopMonitoring(std::tstring data)
 
 		ST_MONITOR_RESULT monitorResult;
 
+		monitorResult.processName = target.processName;
 		monitorResult.logPath = target.logPath;
-		monitorResult.result = result == 0 ? true : false;
+		monitorResult.result = result == 0 ? false : true;
 
 		std::tstring jsMessage;
 		core::WriteJsonToString(&monitorResult, jsMessage);
