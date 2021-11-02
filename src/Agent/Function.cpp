@@ -1,6 +1,7 @@
 #include "Function.h"
 #include "CMessage.h"
 #include "CDevice.h"
+#include "CPolicy.h"
 #include "CMonitoring.h"
 
 void func::GetProcessList()
@@ -166,22 +167,49 @@ void func::GetModuleInfo()
 }
 void func::ActivatePolicy(std::string data)
 {
-	core::Log_Info(TEXT("Function.cpp - [%s]"), TEXT("Response Policy Activate"));
-	ST_POLICY_RESULT policyResult;
-	ST_POLICY_INFO policyInfo;
+	LoggerManager()->Info("Response ActivatePolicy");
+	ST_POLICY_INFO* policyServerInfo = new ST_POLICY_INFO();
+	core::ReadJsonFromString(policyServerInfo, data);
 
-	core::ReadJsonFromString(&policyInfo, data);
+	//�å�� �ִ��� ����
+	bool result = PolicyManager()->isExist(policyServerInfo);
 
-	policyResult.idx = policyInfo.idx;
-	policyResult.result = true;
-	policyResult.time = "2021-10-26";
+	//�å�� ����� �ٿ�ε�
+	if (!result)
+		PolicyManager()->download(policyServerInfo);
 
+	//�å ����
+	PolicyManager()->active(policyServerInfo);
+
+	//���� ��� 
+	result = PolicyManager()->SuccessPolicy(policyServerInfo);
+
+	ST_POLICY_RESULT* policyResult = new ST_POLICY_RESULT();
+
+	if (result) // �� ���� ���������
+	{
+		LoggerManager()->Info("SuccessPolicy True");
+
+		policyResult->idx = policyServerInfo->idx;
+		policyResult->result = true;
+		policyResult->time = "2021-10-26";
+	}
+	else //���и� �����
+	{
+		LoggerManager()->Info("SuccessPolicy Fail");
+		policyResult->idx = policyServerInfo->idx;
+		policyResult->result = false;
+		policyResult->time = "2021-10-26";
+	}
+	//�å ���� ��� ���
 	std::tstring jsPolicyResult;
-	core::WriteJsonToString(&policyResult, jsPolicyResult);
+	core::WriteJsonToString(policyResult, jsPolicyResult);
+	LoggerManager()->Info("Send Message");
 
 	MessageManager()->PushSendMessage(RESPONSE, POLICY_STATE, jsPolicyResult);
 	core::Log_Info(TEXT("Function.cpp - [%s]"), TEXT("Response Policy Activate Complete"));
 }
+
 void func::InactivatePolicy(std::string data)
 {
 	core::Log_Info(TEXT("Function.cpp - [%s]"), TEXT("Response Policy InActivate"));
