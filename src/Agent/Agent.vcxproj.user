@@ -4,6 +4,7 @@
     <RemoteDebuggerCommand>$(RemoteDeployDir)/Build/$(configuration)$(platform)/$(TargetFilename)</RemoteDebuggerCommand>
     <DebuggerFlavor>LinuxDebugger</DebuggerFlavor>
     <RemoteTarget>1204860313;192.168.181.136 (username=, port=22, authentication=Password)</RemoteTarget>
+    <RemoteDebuggerCommandArguments>14.138.200.178 55555 test</RemoteDebuggerCommandArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
     <RemoteDebuggerCommand>$(RemoteDeployDir)/Build/$(configuration)$(platform)/$(TargetFilename)</RemoteDebuggerCommand>
@@ -14,6 +15,7 @@
     <RemoteDebuggerCommand>$(RemoteDeployDir)/Build/$(configuration)$(platform)/$(TargetFilename)</RemoteDebuggerCommand>
     <DebuggerFlavor>LinuxDebugger</DebuggerFlavor>
     <RemoteTarget>1204860313;192.168.181.136 (username=, port=22, authentication=Password)</RemoteTarget>
+    <RemoteDebuggerCommandArguments>14.138.200.178 55555 test</RemoteDebuggerCommandArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
     <RemoteDebuggerCommand>$(RemoteDeployDir)/Build/$(configuration)$(platform)/$(TargetFilename)</RemoteDebuggerCommand>
@@ -24,6 +26,7 @@
     <RemoteDebuggerCommand>$(RemoteDeployDir)/Build/$(configuration)$(platform)/$(TargetFilename)</RemoteDebuggerCommand>
     <DebuggerFlavor>LinuxDebugger</DebuggerFlavor>
     <RemoteTarget>1204860313;192.168.181.136 (username=, port=22, authentication=Password)</RemoteTarget>
+    <RemoteDebuggerCommandArguments>14.138.200.178 55555 test</RemoteDebuggerCommandArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <RemoteDebuggerCommand>$(RemoteDeployDir)/Build/$(configuration)$(platform)/$(TargetFilename)</RemoteDebuggerCommand>
@@ -34,6 +37,7 @@
     <RemoteDebuggerCommand>$(RemoteDeployDir)/Build/$(configuration)$(platform)/$(TargetFilename)</RemoteDebuggerCommand>
     <DebuggerFlavor>LinuxDebugger</DebuggerFlavor>
     <RemoteTarget>1204860313;192.168.181.136 (username=, port=22, authentication=Password)</RemoteTarget>
+    <RemoteDebuggerCommandArguments>14.138.200.178 55555 test</RemoteDebuggerCommandArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
     <RemoteDebuggerCommand>$(RemoteDeployDir)/Build/$(configuration)$(platform)/$(TargetFilename)</RemoteDebuggerCommand>

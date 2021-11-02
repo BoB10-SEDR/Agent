@@ -83,12 +83,25 @@ int CMonitoring::AddMonitoringTarget(ST_MONITOR_TARGET target)
 
 	sleep(0);
 	std::lock_guard<std::mutex> lock_guard(monitoringMutex);
+	std::tstring originalPath = "";
 
-	std::tstring originalPath = std::filesystem::canonical(target.logPath);
+	try
+	{
+		originalPath = std::filesystem::canonical(target.logPath);
+	}
+	catch (const std::exception& ex)
+	{
+		core::Log_Error(TEXT("CMonitoring.cpp - [%s] : %s - %s"), TEXT("Log Path Not Exisit"), TEXT(target.logPath.c_str()), ex.what());
+		return -1;
+	}
 
 	std::tstring directoryPath = GetDirectoryPath(originalPath);
 	std::tstring fileName = GetFilename(originalPath);
 	
+	core::Log_Debug(TEXT("CMonitoring.cpp - [%s] : %s"), TEXT("GetDirectoryPath Result"), TEXT(directoryPath.c_str()));
+	core::Log_Debug(TEXT("CMonitoring.cpp - [%s] : %s"), TEXT("GetFilename Result"), TEXT(fileName.c_str()));
+
+
 	if (directoryPath == "" || fileName == "") 
 	{
 		core::Log_Warn(TEXT("CMonitoring.cpp - [%s] : %s"), TEXT("Path Not Valid."), TEXT(originalPath.c_str()));
@@ -140,10 +153,23 @@ int CMonitoring::RemoveMonitoringTarget(ST_MONITOR_TARGET target)
 	sleep(0);
 	std::lock_guard<std::mutex> lock_guard(monitoringMutex);
 
-	std::tstring originalPath = std::filesystem::canonical(target.logPath);
+	std::tstring originalPath = "";
+
+	try
+	{
+		originalPath = std::filesystem::canonical(target.logPath);
+	}
+	catch (const std::exception& ex)
+	{
+		core::Log_Error(TEXT("CMonitoring.cpp - [%s] : %s - %s"), TEXT("Log Path Not Exisit"), TEXT(target.logPath.c_str()), ex.what());
+		return -1;
+	}
 
 	std::tstring directoryPath = GetDirectoryPath(originalPath);
 	std::tstring fileName = GetFilename(originalPath);
+
+	core::Log_Debug(TEXT("CMonitoring.cpp - [%s] : %s"), TEXT("GetDirectoryPath Result"), TEXT(directoryPath.c_str()));
+	core::Log_Debug(TEXT("CMonitoring.cpp - [%s] : %s"), TEXT("GetFilename Result"), TEXT(fileName.c_str()));
 
 	if (directoryPath == "" || fileName == "")
 	{
