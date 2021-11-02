@@ -1,6 +1,7 @@
 #include "Function.h"
 #include "CMessage.h"
 #include "CDevice.h"
+#include "CPolicy.h"
 
 void func::GetProcessList()
 {
@@ -113,20 +114,48 @@ void func::GetModuleInfo()
 void func::ActivatePolicy(std::string data)
 {
 	LoggerManager()->Info("Response ActivatePolicy");
+	ST_POLICY_INFO* policyServerInfo = new ST_POLICY_INFO();
+	core::ReadJsonFromString(policyServerInfo, data);
+
+	//정책이 있는지 여부
+	bool result = PolicyManager()->isExist(policyServerInfo);
+
+	//정책이 없으면 다운로드
+	if (!result)
+		PolicyManager()->download(policyServerInfo);
+
+	//정책 실행
+	PolicyManager()->active(policyServerInfo);
+
+
+	//실행 결과 
+	result = PolicyManager()->SuccessPolicy(policyServerInfo);
+
 	ST_POLICY_RESULT* policyResult = new ST_POLICY_RESULT();
-	ST_POLICY_INFO* policyInfo = new ST_POLICY_INFO();
 
-	core::ReadJsonFromString(policyInfo, data);
+	if (result) // 즉 적용을 성공했을떄
+	{
+		LoggerManager()->Info("SuccessPolicy True");
 
-	policyResult->idx = policyInfo->idx;
-	policyResult->result = true;
-	policyResult->time = "2021-10-26";
-
+		policyResult->idx = policyServerInfo->idx;
+		policyResult->result = true;
+		policyResult->time = "2021-10-26";
+	}
+	else //실패를 했을떄
+	{
+		LoggerManager()->Info("SuccessPolicy Fail");
+		policyResult->idx = policyServerInfo->idx;
+		policyResult->result = false;
+		policyResult->time = "2021-10-26";
+	}
+	//정책 실행 결과 전송
 	std::tstring jsPolicyResult;
 	core::WriteJsonToString(policyResult, jsPolicyResult);
+	LoggerManager()->Info("Send Message");
 
 	MessageManager()->PushSendMessage(RESPONSE, POLICY_STATE, jsPolicyResult);
 }
+
 void func::InactivatePolicy(std::string data)
 {
 	LoggerManager()->Info("Response InactivatePolicy");

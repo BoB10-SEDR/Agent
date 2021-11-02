@@ -43,5 +43,6 @@ std::string StringFormatter(const std::string& format, Args ... args) {
 #include <sys/types.h>
 #include <dirent.h>
 
+
 std::string SendToTerminal(const char* ShellCommand);
 
