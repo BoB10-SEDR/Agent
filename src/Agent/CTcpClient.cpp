@@ -1,10 +1,13 @@
 #include "CTcpClient.h"
-#include "CTcpClientException.h"
 #include "CMessage.h"
+#include "Function.h"
+
+extern ST_ENV env;
 
 CTcpClient::CTcpClient()
 {
 	connectStatus = -1;
+	clientSocket = -1;
 	memset(&serverAddress, 0, sizeof(serverAddress));
 	serverAddress.sin_family = AF_INET;
 	serverAddress.sin_addr.s_addr = inet_addr("127.0.0.1");
@@ -14,6 +17,7 @@ CTcpClient::CTcpClient()
 CTcpClient::CTcpClient(std::string ip, std::string port)
 {
 	connectStatus = -1;
+	clientSocket = -1;
 	memset(&serverAddress, 0, sizeof(serverAddress));
 	serverAddress.sin_family = AF_INET;
 	serverAddress.sin_addr.s_addr = inet_addr(ip.c_str());
@@ -25,106 +29,111 @@ CTcpClient::~CTcpClient()
 
 }
 
-int CTcpClient::Connect()
+void CTcpClient::Connect()
 {
+	std::lock_guard<std::mutex> lock_guard(connectionMutex);
 	clientSocket = socket(PF_INET, SOCK_STREAM, 0);
 
 	if (clientSocket < 0)
-		throw CTcpClientException("Socket Create Fail");
+		core::Log_Warn(TEXT("CTcpClient.cpp - [%s] : %d"), TEXT("Socket Create Fail"), errno);
 
 	connectStatus = connect(clientSocket, (struct sockaddr*)&serverAddress, sizeof(serverAddress));
 
 	if (connectStatus == -1)
-		LoggerManager()->Warn("Connect Fail");
-	else
-		LoggerManager()->Info("Connected...........\n");
-
-	return 0;
-}
-
-int CTcpClient::Reconnect()
-{
-	clientSocket = socket(PF_INET, SOCK_STREAM, 0);
-
-	if (clientSocket < 0)
-		throw CTcpClientException("Socket Create Fail");
-
-	while (!Live()) {
-		sleep(5);
-
-		connectStatus = connect(clientSocket, (struct sockaddr*)&serverAddress, sizeof(serverAddress));
-
-
-		if (connectStatus == -1) {
-			LoggerManager()->Warn("Reconnect Fail");
-		}
-		else {
-			LoggerManager()->Info("Reconnected...........\n");
-			break;
-		}
+		core::Log_Warn(TEXT("CTcpClient.cpp - [%s] : %s"), TEXT("Server Connected Fail"), TEXT(inet_ntoa(serverAddress.sin_addr)));
+	else {
+		core::Log_Info(TEXT("CTcpClient.cpp - [%s] : %s"), TEXT("Server Connected"), TEXT(inet_ntoa(serverAddress.sin_addr)));
+		func::GetDeviceInfo();
 	}
-
-	return 0;
 }
 
 int CTcpClient::Send(std::string message)
 {
-	if (!Live()) {
-		Reconnect();
+	while (!Live()) {
+		sleep(5);
+		Connect();
 	}
-	write(clientSocket, message.c_str(), message.length());
+
+	int result = write(clientSocket, message.c_str(), message.length());
+
+	if (result == -1)
+		core::Log_Warn(TEXT("CTcpClient.cpp - [%s] : %d"), TEXT("Send Error Code"), errno);
+	else
+		core::Log_Debug(TEXT("CTcpClient.cpp - [%s] : %d"), TEXT("Send Complete"), result);
+
 	return 0;
 }
 
 int CTcpClient::Recv()
 {
-	if (!Live()) {
-		Reconnect();
+	while (!Live()) {
+		sleep(5);
+		Connect();
 	}
 
-	while (1)
-	{
-		char message[BUFFER_SIZE];
-		int messageLength;
+	int messageLength;
+	char message[BUFFER_SIZE + 1];
 
-		messageLength = read(clientSocket, &message, BUFFER_SIZE - 1);
-		
-		if (messageLength <= 0)    // close request!
+	while (1) {
+		messageLength = read(clientSocket, &message, BUFFER_SIZE);
+		core::Log_Debug(TEXT("CTcpClient.cpp - [%s] : %d"), TEXT("Read Complete"), messageLength);
+		core::Log_Debug(TEXT("CTcpClient.cpp - [%s] : %s"), TEXT("Recieve Message"), message);
+
+		if (messageLength == 0)
 		{
 			CTcpClient::Disconnet();
 			break;
 		}
+		else if (messageLength < 0)
+		{
+			core::Log_Warn(TEXT("CTcpClient.cpp - [%s] : %d"), TEXT("Read Error Code"), errno);
+			core::Log_Debug(TEXT("CTcpClient.cpp - [%s] : %s"), TEXT("Remain MessageBuffer"), TEXT(messageBuffers.c_str()));
+			break;
+		}
+		else
+		{
+			message[messageLength] = 0;
+			messageBuffers += message;
 
-		LoggerManager()->Info(StringFormatter("Message Receive [%d] .........", messageLength));
-		message[messageLength] = 0;
+			while (1)
+			{
+				size_t start_location = messageBuffers.find("BOBSTART");
+				size_t end_location = messageBuffers.find("BOBEND");
+				core::Log_Debug(TEXT("CTcpClient.cpp - [%s] : %d, %d"), TEXT("Find Position(Start, End)"), start_location, end_location);
 
-		ST_PACKET_INFO* stPacketRead = new ST_PACKET_INFO();
-		core::ReadJsonFromString(stPacketRead, message);
-		MessageManager()->PushReceiveMessage(stPacketRead);
+				if (start_location == -1 || end_location == -1)
+					break;
+
+				ST_PACKET_INFO* stPacketRead = new ST_PACKET_INFO();
+				core::ReadJsonFromString(stPacketRead, messageBuffers.substr(start_location + 8, end_location - (start_location + 8)));
+
+				MessageManager()->PushReceiveMessage(stPacketRead);
+				messageBuffers = messageBuffers.substr(start_location + 6);
+			}
+		}
+		memset(message, 0, sizeof(message));
 	}
 	return 0;
 }
 
-int CTcpClient::Disconnet()
+void CTcpClient::Disconnet()
 {
 	close(clientSocket);
-	LoggerManager()->Info("Disconneted...........\n");
 	clientSocket = -1;
 	connectStatus = -1;
-
-	return 0;
+	core::Log_Warn(TEXT("CTcpClient.cpp - [%s] : %s"), TEXT("Server Disconneted"), TEXT(inet_ntoa(serverAddress.sin_addr)));
 }
 
 bool CTcpClient::Live()
 {
-	if (connectStatus == -1) {
+	if (connectStatus == -1 || clientSocket == -1) 
 		return false;
-	}
+	
 	return true;
 }
 
 CTcpClient* CTcpClient::GetInstance()
 {
-	static CTcpClient instance("127.0.0.1", "12345");
+	static CTcpClient instance(env.ip, env.port);
 	return &instance;
 }
