@@ -36,21 +36,20 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CDevice.cpp" />
-    <ClCompile Include="CLogger.cpp" />
     <ClCompile Include="CMessage.cpp" />
+    <ClCompile Include="CMonitoring.cpp" />
     <ClCompile Include="CPolicy.cpp" />
-    <ClCompile Include="CSample.cpp" />
     <ClCompile Include="CTcpClient.cpp" />
+    <ClCompile Include="Function.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CDevice.h" />
-    <ClInclude Include="CLogger.h" />
     <ClInclude Include="CMessage.h" />
+    <ClInclude Include="CMonitoring.h" />
     <ClInclude Include="CPolicy.h" />
-    <ClInclude Include="CSample.h" />
     <ClInclude Include="CTcpClient.h" />
-    <ClInclude Include="CTcpClientException.h" />
+    <ClInclude Include="Function.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -99,6 +98,8 @@
     <RemoteIntRelDir>$(RemoteProjectRelDir)/Output/$(configuration)$(platform)/$(projectName)</RemoteIntRelDir>
     <RemoteOutRelDir>$(RemoteProjectRelDir)/Build/$(configuration)$(platform)</RemoteOutRelDir>
     <TargetName>agent</TargetName>
+    <RemoteCppCompileToolExe>g++</RemoteCppCompileToolExe>
+    <RemoteCCompileToolExe>g++</RemoteCCompileToolExe>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
     <OutDir>$(SolutionDir)..\Build\$(configuration)$(platform)</OutDir>
@@ -106,6 +107,8 @@
     <RemoteIntRelDir>$(RemoteProjectRelDir)/Output/$(configuration)$(platform)/$(projectName)</RemoteIntRelDir>
     <RemoteOutRelDir>$(RemoteProjectRelDir)/Build/$(configuration)$(platform)</RemoteOutRelDir>
     <TargetName>agent</TargetName>
+    <RemoteCppCompileToolExe>g++</RemoteCppCompileToolExe>
+    <RemoteCCompileToolExe>g++</RemoteCCompileToolExe>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
     <OutDir>$(SolutionDir)..\Build\$(configuration)$(platform)</OutDir>
@@ -113,6 +116,8 @@
     <RemoteIntRelDir>$(RemoteProjectRelDir)/Output/$(configuration)$(platform)/$(projectName)</RemoteIntRelDir>
     <RemoteOutRelDir>$(RemoteProjectRelDir)/Build/$(configuration)$(platform)</RemoteOutRelDir>
     <TargetName>agent</TargetName>
+    <RemoteCppCompileToolExe>g++</RemoteCppCompileToolExe>
+    <RemoteCCompileToolExe>g++</RemoteCCompileToolExe>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
     <OutDir>$(SolutionDir)..\Build\$(configuration)$(platform)</OutDir>
@@ -120,6 +125,8 @@
     <RemoteIntRelDir>$(RemoteProjectRelDir)/Output/$(configuration)$(platform)/$(projectName)</RemoteIntRelDir>
     <RemoteOutRelDir>$(RemoteProjectRelDir)/Build/$(configuration)$(platform)</RemoteOutRelDir>
     <TargetName>agent</TargetName>
+    <RemoteCppCompileToolExe>g++</RemoteCppCompileToolExe>
+    <RemoteCCompileToolExe>g++</RemoteCCompileToolExe>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)..\Build\$(configuration)$(platform)</OutDir>
@@ -127,6 +134,8 @@
     <RemoteIntRelDir>$(RemoteProjectRelDir)/Output/$(configuration)$(platform)/$(projectName)</RemoteIntRelDir>
     <RemoteOutRelDir>$(RemoteProjectRelDir)/Build/$(configuration)$(platform)</RemoteOutRelDir>
     <TargetName>agent</TargetName>
+    <RemoteCppCompileToolExe>g++</RemoteCppCompileToolExe>
+    <RemoteCCompileToolExe>g++</RemoteCCompileToolExe>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)..\Build\$(configuration)$(platform)</OutDir>
@@ -134,6 +143,8 @@
     <RemoteIntRelDir>$(RemoteProjectRelDir)/Output/$(configuration)$(platform)/$(projectName)</RemoteIntRelDir>
     <RemoteOutRelDir>$(RemoteProjectRelDir)/Build/$(configuration)$(platform)</RemoteOutRelDir>
     <TargetName>agent</TargetName>
+    <RemoteCppCompileToolExe>g++</RemoteCppCompileToolExe>
+    <RemoteCCompileToolExe>g++</RemoteCCompileToolExe>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
     <OutDir>$(SolutionDir)..\Build\$(configuration)$(platform)</OutDir>
@@ -141,6 +152,8 @@
     <RemoteIntRelDir>$(RemoteProjectRelDir)/Output/$(configuration)$(platform)/$(projectName)</RemoteIntRelDir>
     <RemoteOutRelDir>$(RemoteProjectRelDir)/Build/$(configuration)$(platform)</RemoteOutRelDir>
     <TargetName>agent</TargetName>
+    <RemoteCppCompileToolExe>g++</RemoteCppCompileToolExe>
+    <RemoteCCompileToolExe>g++</RemoteCCompileToolExe>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
     <OutDir>$(SolutionDir)..\Build\$(configuration)$(platform)</OutDir>
@@ -148,11 +161,14 @@
     <RemoteIntRelDir>$(RemoteProjectRelDir)/Output/$(configuration)$(platform)/$(projectName)</RemoteIntRelDir>
     <RemoteOutRelDir>$(RemoteProjectRelDir)/Build/$(configuration)$(platform)</RemoteOutRelDir>
     <TargetName>agent</TargetName>
+    <RemoteCppCompileToolExe>g++</RemoteCppCompileToolExe>
+    <RemoteCCompileToolExe>g++</RemoteCCompileToolExe>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
     <ClCompile>
       <AdditionalIncludeDirectories>%(ClCompile.AdditionalIncludeDirectories);$(SolutionDir)../Inc;$(RemoteRootDir)/../BoB10_SEDR/$(ProjectName)/Inc</AdditionalIncludeDirectories>
       <CppLanguageStandard>c++17</CppLanguageStandard>
+      <PreprocessorDefinitions>DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <LibraryDependencies>cppcore;protocol;dl;pthread;pcap</LibraryDependencies>
@@ -171,6 +187,7 @@
     <ClCompile>
       <AdditionalIncludeDirectories>%(ClCompile.AdditionalIncludeDirectories);$(SolutionDir)../Inc;$(RemoteRootDir)/../BoB10_SEDR/$(ProjectName)/Inc</AdditionalIncludeDirectories>
       <CppLanguageStandard>c++17</CppLanguageStandard>
+      <PreprocessorDefinitions>DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <LibraryDependencies>cppcore;protocol;dl;pthread;pcap</LibraryDependencies>
@@ -189,6 +206,7 @@
     <ClCompile>
       <AdditionalIncludeDirectories>%(ClCompile.AdditionalIncludeDirectories);$(SolutionDir)../Inc;$(RemoteRootDir)/../BoB10_SEDR/$(ProjectName)/Inc</AdditionalIncludeDirectories>
       <CppLanguageStandard>c++17</CppLanguageStandard>
+      <PreprocessorDefinitions>DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <LibraryDependencies>cppcore;protocol;dl;pthread;pcap</LibraryDependencies>
@@ -207,6 +225,7 @@
     <ClCompile>
       <AdditionalIncludeDirectories>%(ClCompile.AdditionalIncludeDirectories);$(SolutionDir)../Inc;$(RemoteRootDir)/../BoB10_SEDR/$(ProjectName)/Inc</AdditionalIncludeDirectories>
       <CppLanguageStandard>c++17</CppLanguageStandard>
+      <PreprocessorDefinitions>DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <LibraryDependencies>cppcore;protocol;dl;pthread;pcap</LibraryDependencies>
