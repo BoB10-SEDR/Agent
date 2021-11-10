@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "CPolicy.h"
-
+#include <filesystem>
 
 typedef std::vector <std::string> PnameList;
 PnameList PnL;
@@ -14,7 +14,7 @@ std::vector<policy_Info>::size_type st;
 
 CPolicy::CPolicy()
 {
-
+	directoryPath = "./Policy";
 }
 
 CPolicy::~CPolicy()
@@ -25,7 +25,7 @@ CPolicy::~CPolicy()
 /*-------------------------------------------------------------------------------------------------------*/
 std::string CPolicy::getPname()
 {
-	std::string PolicyDirPath = SendToTerminal("find / -name SEDR_Policy");
+	std::string PolicyDirPath = SendToTerminal("find / -name SEDR_Policy"); // 디렉토리 상대경로를 알고 있다면 find 할 필요가 없다.
 	std::string sumPath = "/";
 
 	PolicyDirPath += sumPath;
@@ -55,25 +55,8 @@ std::string CPolicy::getPname()
 /*-------------------------------------------------------------------------------------------------------*/
 std::string CPolicy::getPpath(std::string PFilename)
 {
-	std::string Ppath;
-
-	std::string PpathCommTemp1 = "find / -name ";
-	std::string PpathComm = PpathCommTemp1 + PFilename;
-	
-	Ppath = SendToTerminal(PpathComm.c_str());
-
-	for (st = 0; st < CPolicy::PolicyList.size(); st++)
-	{
-		if (PpL[st] == Ppath)
-		{ // PpL 리스트에 이미 값이 있다면 구한 경로 반환
-			return Ppath;
-		}
-		else
-		{ // 없다면 PpL 리스트에 넣기
-			PpL.push_back(Ppath);
-		}
-	}
-	return Ppath;
+	std::tstring originPath = std::filesystem::canonical(PFilename).c_str();
+	return originPath;
 }
 
 
@@ -124,10 +107,10 @@ std::string CPolicy::getPChangeTime(std::string PFilePath)
 
 struct policy_Info* CPolicy::SearchPolicy(std::string key)
 {
-	struct policy_Info* result = PolicyList[key];
+	struct policy_Info* result = PolicyList.count(key) ? PolicyList[key] : NULL;
 	return result;
-
 }
+
 std::string CPolicy::GeneratePolicyKey(ST_POLICY_INFO* policyServerInfo)
 {
 	return StringFormatter("%d_%s_%s", policyServerInfo->idx, policyServerInfo->name.c_str(), policyServerInfo->version.c_str());
@@ -136,19 +119,12 @@ std::string CPolicy::GeneratePolicyKey(ST_POLICY_INFO* policyServerInfo)
 /*-------------------------------------------------------------------------------------------------------*/
 bool CPolicy::isExist(ST_POLICY_INFO* policyServerInfo)
 { 
-	LoggerManager()->Info("isExist Execute");
-
-	// 1. map 검색을 수행 우리가 원하는 정책이 있는지 검색 수행
 	std::string policyKey = GeneratePolicyKey(policyServerInfo);
 	struct policy_Info* pinfo = SearchPolicy(policyKey);
 
 	if (pinfo == NULL) {
-		//정책이 존재하지 않는다.
-		LoggerManager()->Info("Policy Not Exist");
+		core::Log_Debug(TEXT("CPolicy.cpp - [%s] %s"), TEXT("Policy Not Exist"), TEXT(policyServerInfo->name.c_str()));
 		return false;
-	}
-	else {
-		LoggerManager()->Info("Policy Exist");
 	}
 
 	// 2. 실제로 파일이 있는지 확인
@@ -158,7 +134,6 @@ bool CPolicy::isExist(ST_POLICY_INFO* policyServerInfo)
 
 	return false;
 }
-
 
 /*-------------------------------------------------------------------------------------------------------*/
 std::string CPolicy::getActivePolicies()
@@ -170,11 +145,10 @@ std::string CPolicy::getActivePolicies()
 	{
 		struct policy_Info* info = iter->second;
 		if (info == NULL) {
-			LoggerManager()->Warn("PolicyList NULL");
+			core::Log_Warn(TEXT("CPolicy.cpp - [%s]"), TEXT("PolicyList NULL"));
 		}
 		else {
-			LoggerManager()->Info(StringFormatter("Idx : %s, SName : %s, APolicyName : %s, APolicyPath : %s", info->SId, info->SName, info->APolicyName, info->APolicyPath));
-
+			core::Log_Debug(TEXT("CPolicy.cpp - [%s] Idx : %s, SName : %s, APolicyName : %s, APolicyPath : %s"), TEXT("Policy Info"), info->SIdx.c_str(), info->SName.c_str(), info->APolicyName.c_str(), info->APolicyPath.c_str());
 		}
 	}
 	
@@ -248,7 +222,7 @@ void CPolicy::getPolicyInfo()
 /*-------------------------------------------------------------------------------------------------------*/
 bool CPolicy::active(ST_POLICY_INFO* policyServerInfo)
 {
-	LoggerManager()->Info("Active policy");
+	core::Log_Debug(TEXT("CPolicy.cpp - [%s] "), TEXT("Active policy"));
 
 	// 1. map 검색을 수행 우리가 원하는 정책이 있는지 검색 수행
 	std::string policyKey = GeneratePolicyKey(policyServerInfo);
@@ -268,8 +242,7 @@ bool CPolicy::active(ST_POLICY_INFO* policyServerInfo)
 
 bool CPolicy::activeFull()
 {
-	LoggerManager()->Info("Active All policy");
-
+	core::Log_Debug(TEXT("CPolicy.cpp - [%s] "), TEXT("Active All policy"));
 
 	int ActiveFullRes = false;
 
@@ -289,7 +262,7 @@ bool CPolicy::activeFull()
 /*-------------------------------------------------------------------------------------------------------*/
 bool CPolicy::Inactivate(ST_POLICY_INFO* policyServerInfo)
 {
-	LoggerManager()->Info("InActive policy");
+	core::Log_Debug(TEXT("CPolicy.cpp - [%s] "), TEXT("InActive policy"));
 
 	std::string policyKey = GeneratePolicyKey(policyServerInfo);
 	struct policy_Info* pinfo = SearchPolicy(policyKey);
@@ -309,7 +282,7 @@ bool CPolicy::Inactivate(ST_POLICY_INFO* policyServerInfo)
 
 bool CPolicy::InactivateFull()
 {
-	LoggerManager()->Info("Inactive All policy");
+	core::Log_Debug(TEXT("CPolicy.cpp - [%s] "), TEXT("Inactive All policy"));
 
 	int InActiveFullRes = false;
 
@@ -329,7 +302,8 @@ bool CPolicy::InactivateFull()
 bool CPolicy::isActive(ST_POLICY_INFO* policyServerInfo)
 {
 	// 1. map 검색을 수행 우리가 원하는 정책이 있는지 검색 수행
-	LoggerManager()->Info("SuccessPolicy Execute");
+	core::Log_Debug(TEXT("CPolicy.cpp - [%s] "), TEXT("SuccessPolicy Execute"));
+
 
 	std::string policyKey = GeneratePolicyKey(policyServerInfo);
 	struct policy_Info* pinfo = SearchPolicy(policyKey);
@@ -342,7 +316,8 @@ bool CPolicy::isActive(ST_POLICY_INFO* policyServerInfo)
 	// 파일 기반의 정책 파일들은 실행하자마자 자신의 실행 로그를 남긴다. (ex 형식이 '정책파일명.log'라고 한다면)
 	if (pinfo != NULL) {
 		std::string logPath = StringFormatter("%s.log", pinfo->APolicyPath.c_str());
-		LoggerManager()->Info(StringFormatter("Log PATH : %s.log", logPath));
+
+		core::Log_Debug(TEXT("CPolicy.cpp - [%s] "), TEXT("Log PATH"), logPath.c_str());
 
 		int result = false;
 
@@ -365,8 +340,7 @@ bool CPolicy::isActive(ST_POLICY_INFO* policyServerInfo)
 		return result;
 	}
 
-
-	LoggerManager()->Info("SuccessPolicy End");
+	core::Log_Debug(TEXT("CPolicy.cpp - [%s] "), TEXT("SuccessPolicy End"));
 
 	if (result)
 	{
@@ -384,12 +358,18 @@ bool CPolicy::download(ST_POLICY_INFO* policyServerInfo)
 {// download() 실행 조건 -> 서버로부터 api를 통해 특정 정책을 적용하라는 명령이 온다면
 // 해당 데이터에 포함된 정책 파일명이 Agent 본인이 관리하고 있는지(파일이 있는지) 확인하고
 // 있다면 active() 함수로 값을 넘기고, 없다면 서버에 GET 요청한다.
-	LoggerManager()->Info("Policy Download Execute");
+	core::Log_Debug(TEXT("CPolicy.cpp - [%s] : %s"), TEXT("Policy Download"), TEXT(policyServerInfo->name.c_str()));
 
-	std::string policyKey = GeneratePolicyKey(policyServerInfo);
+	std::tstring policyKey = GeneratePolicyKey(policyServerInfo);
 	// 1. 파일 다운로드 후 저장
-
-
+	std::tstring policyPath = TEXT(directoryPath) + TEXT("/") + TEXT(policyKey);
+	std::string out_line;
+	std::ofstream out(policyPath.c_str());
+	//for (int i = 0; i <= 10; i++) {
+	//	std::cin >> out_line;
+	//	out << out_line << std::endl;
+	//}
+	out.close();
 
 	// 2-1. 기존에 PolicyList에 존재하면 이름 및 다운로드 경로 업데이트
 	// 2-2. PolicyList에 추가
@@ -398,27 +378,26 @@ bool CPolicy::download(ST_POLICY_INFO* policyServerInfo)
 
 	if (pinfo == NULL)
 	{
-		LoggerManager()->Info("New Policy");
+		core::Log_Debug(TEXT("CPolicy.cpp - [%s] "), TEXT("New Policy"));
 
 		struct policy_Info* tmp = new struct policy_Info();
-		tmp->SId = policyServerInfo->idx;
+		tmp->SIdx = policyServerInfo->idx;
 		tmp->SName = policyServerInfo->name;
 
 		tmp->APolicyName = policyKey;
-		std::string tmpPpathKey = getPpath(policyKey);
-		tmp->APolicyPath = tmpPpathKey;
+		tmp->APolicyPath = getPpath(policyPath);
 
-		LoggerManager()->Info(tmpPpathKey);
+		core::Log_Debug(TEXT("CPolicy.cpp - [%s] %s "), TEXT("New Policy"), TEXT(tmp->APolicyPath.c_str()));
 
-		tmp->APCreateTime = getPCreateTime(tmpPpathKey);
-		tmp->APModifyTime = getPModifyTime(tmpPpathKey);
-		tmp->APChageTime = getPChangeTime(tmpPpathKey);
+		//tmp->APCreateTime = getPCreateTime(tmpPpathKey);
+		//tmp->APModifyTime = getPModifyTime(tmpPpathKey);
+		//tmp->APChageTime = getPChangeTime(tmpPpathKey);
 
 		PolicyList.insert(std::pair<std::string, struct policy_Info*>(policyKey, tmp));
 		getActivePolicies();	//map에 값이 제대로 들어갔는지
 	}
 	else {
-		LoggerManager()->Info("Policy Update");
+		core::Log_Debug(TEXT("CPolicy.cpp - [%s] %s "), TEXT("Policy Update"));
 
 		pinfo->APolicyName = policyKey;
 		
@@ -441,6 +420,9 @@ bool CPolicy::getFileFromHttp(char* pszUrl, char* pszFile)
 
 }
 
+bool CPolicy::SuccessPolicy(ST_POLICY_INFO* policyServerInfo) {
+	return true;
+}
 /*-------------------------------------------------------------------------------------------------------*/
 /*
 void CPolicy::PolicyInfoPrint()

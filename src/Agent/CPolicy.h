@@ -2,6 +2,12 @@
 #include "stdafx.h"
 #include <map>
 
+struct time_info 
+{
+	std::tstring createTime;
+	std::tstring modifyTime;
+	std::tstring changeTime;
+};
 
 struct policy_Info {
 	/* 서버로부터 받은 정책 정보 */
@@ -25,6 +31,7 @@ struct policy_Info {
 class CPolicy
 {
 private:
+	std::string directoryPath;
 	std::string m_sgetPname;
 	std::string m_sgetPpath;
 	std::string m_sgetPCreateTime;
@@ -62,13 +69,14 @@ public:
 	bool download(ST_POLICY_INFO* policyServerInfo);
 	bool active(ST_POLICY_INFO* policyServerInfo);
 	bool activeFull();
-	bool Inactivate();
+	bool Inactivate(ST_POLICY_INFO* policyServerInfo);
 	bool InactivateFull();
-	bool isActive();
+	bool isActive(ST_POLICY_INFO* policyServerInfo);
 	bool isExist(ST_POLICY_INFO* policyServerInfo);
 	bool SuccessPolicy(ST_POLICY_INFO* policyServerInfo);
 	void getPolicyInfo();
 	void PolicyInfoPrint();
+	bool getFileFromHttp(char* pszUrl, char* pszFile);
 };
 
 inline CPolicy* PolicyManager()

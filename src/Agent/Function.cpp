@@ -167,46 +167,48 @@ void func::GetModuleInfo()
 }
 void func::ActivatePolicy(std::string data)
 {
-	LoggerManager()->Info("Response ActivatePolicy");
+	core::Log_Info(TEXT("Function.cpp - [%s] %s"), TEXT("Response ActivatePolicy"), data.c_str());
 	ST_POLICY_INFO* policyServerInfo = new ST_POLICY_INFO();
 	core::ReadJsonFromString(policyServerInfo, data);
 
-	//�å�� �ִ��� ����
 	bool result = PolicyManager()->isExist(policyServerInfo);
+	core::Log_Debug(TEXT("Function.cpp - [%s] %d"), TEXT("Policy Exists"), result);
 
-	//�å�� ����� �ٿ�ε�
 	if (!result)
 		PolicyManager()->download(policyServerInfo);
 
-	//�å ����
-	PolicyManager()->active(policyServerInfo);
+	////�å ����
+	//PolicyManager()->active(policyServerInfo);
 
-	//���� ��� 
-	result = PolicyManager()->SuccessPolicy(policyServerInfo);
+	////���� ��� 
+	//result = PolicyManager()->SuccessPolicy(policyServerInfo);
 
-	ST_POLICY_RESULT* policyResult = new ST_POLICY_RESULT();
+	//ST_POLICY_RESULT* policyResult = new ST_POLICY_RESULT();
 
-	if (result) // �� ���� ���������
-	{
-		LoggerManager()->Info("SuccessPolicy True");
+	//if (result) // �� ���� ���������
+	//{
+	//	core::Log_Debug(TEXT("Function.cpp - [%s]"), TEXT("SuccessPolicy True"));
 
-		policyResult->idx = policyServerInfo->idx;
-		policyResult->result = true;
-		policyResult->time = "2021-10-26";
-	}
-	else //���и� �����
-	{
-		LoggerManager()->Info("SuccessPolicy Fail");
-		policyResult->idx = policyServerInfo->idx;
-		policyResult->result = false;
-		policyResult->time = "2021-10-26";
-	}
-	//�å ���� ��� ���
-	std::tstring jsPolicyResult;
-	core::WriteJsonToString(policyResult, jsPolicyResult);
-	LoggerManager()->Info("Send Message");
+	//	policyResult->idx = policyServerInfo->idx;
+	//	policyResult->result = true;
+	//	policyResult->time = "2021-10-26";
+	//}
+	//else //���и� �����
+	//{
+	//	core::Log_Debug(TEXT("Function.cpp - [%s]"), TEXT("SuccessPolicy False"));
 
-	MessageManager()->PushSendMessage(RESPONSE, POLICY_STATE, jsPolicyResult);
+	//	policyResult->idx = policyServerInfo->idx;
+	//	policyResult->result = false;
+	//	policyResult->time = "2021-10-26";
+	//}
+
+	//delete policyServerInfo;
+
+	////�å ���� ��� ���
+	//std::tstring jsPolicyResult;
+	//core::WriteJsonToString(policyResult, jsPolicyResult);
+
+	//MessageManager()->PushSendMessage(RESPONSE, POLICY_STATE, jsPolicyResult);
 	core::Log_Info(TEXT("Function.cpp - [%s]"), TEXT("Response Policy Activate Complete"));
 }
 
